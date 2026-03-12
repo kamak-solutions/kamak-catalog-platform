@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: kamak_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: kamak
+      POSTGRES_PASSWORD: sk3ysowk_45
+      POSTGRES_DB: kamak_catalog
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
