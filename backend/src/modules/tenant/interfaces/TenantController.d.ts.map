@@ -1,0 +1,1 @@
+{"version":3,"file":"TenantController.d.ts","sourceRoot":"","sources":["TenantController.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,YAAY,EAAE,cAAc,EAAE,MAAM,SAAS,CAAC;AAQ5D,qBAAa,gBAAgB;IACrB,MAAM,CAAC,OAAO,EAAE,cAAc,EAAE,KAAK,EAAE,YAAY;IAiBnD,OAAO,CAAC,QAAQ,EAAE,cAAc,EAAE,KAAK,EAAE,YAAY;CAM5D"}

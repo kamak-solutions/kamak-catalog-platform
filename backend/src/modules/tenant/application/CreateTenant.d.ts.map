@@ -1,0 +1,1 @@
+{"version":3,"file":"CreateTenant.d.ts","sourceRoot":"","sources":["CreateTenant.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,8BAA8B,CAAC;AAErE,qBAAa,YAAY;IACX,OAAO,CAAC,QAAQ,CAAC,gBAAgB;gBAAhB,gBAAgB,EAAE,gBAAgB;IAEzD,OAAO,CAAC,IAAI,EAAE,MAAM;CAO3B"}

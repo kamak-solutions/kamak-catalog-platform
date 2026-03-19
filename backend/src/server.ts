@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import { tenantRoutes } from "./modules/tenant/interfaces/tenat.routes.js";
+import { userRoutes } from "./modules/user/interfaces/user.routes.js";
 
 const app = Fastify({
   logger: {
@@ -14,6 +15,7 @@ app.get("/health", (request, reply) => {
 });
 
 app.register(tenantRoutes);
+app.register(userRoutes);
 
 const start = async () => {
   try {
