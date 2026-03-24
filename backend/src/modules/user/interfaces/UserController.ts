@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { CreateUser } from "../application/CreateUser.js";
+import { presentUser } from "./UserPresenter.js";
 import { PrismaUserRepository } from "../infrastructure/PrismaUserRepository.js";
 
 const createUserBodySchema = z.object({
@@ -26,7 +27,7 @@ export class UserController {
         role: "OWNER",
       });
 
-      return reply.status(201).send(user);
+      return reply.status(201).send(presentUser(user));
     } catch (error) {
       return reply.status(400).send({
         message: error instanceof Error ? error.message : "Invalid request",

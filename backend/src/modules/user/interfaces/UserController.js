@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CreateUser } from "../application/CreateUser.js";
+import { presentUser } from "./UserPresenter.js";
 import { PrismaUserRepository } from "../infrastructure/PrismaUserRepository.js";
 const createUserBodySchema = z.object({
     name: z.string().min(2),
@@ -20,7 +21,7 @@ export class UserController {
                 tenantId: body.tenantId,
                 role: "OWNER",
             });
-            return reply.status(201).send(user);
+            return reply.status(201).send(presentUser(user));
         }
         catch (error) {
             return reply.status(400).send({

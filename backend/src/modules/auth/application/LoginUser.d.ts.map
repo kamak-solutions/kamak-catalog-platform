@@ -1,0 +1,1 @@
+{"version":3,"file":"LoginUser.d.ts","sourceRoot":"","sources":["LoginUser.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,qCAAqC,CAAC;AAE1E,UAAU,cAAc;IACtB,KAAK,EAAE,MAAM,CAAC;IACd,QAAQ,EAAE,MAAM,CAAC;CAClB;AAED,qBAAa,SAAS;IACR,OAAO,CAAC,QAAQ,CAAC,cAAc;gBAAd,cAAc,EAAE,cAAc;IAErD,OAAO,CAAC,KAAK,EAAE,cAAc;;;;;;;;;;;CA4CpC"}
