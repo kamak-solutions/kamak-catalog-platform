@@ -1,9 +1,14 @@
 import Fastify from "fastify";
 import { authRoutes } from "./modules/auth/interfaces/auth.routes.js";
+import { meRoutes } from "./modules/auth/interfaces/me.routes.js";
 import { tenantRoutes } from "./modules/tenant/interfaces/tenat.routes.js";
 import { userRoutes } from "./modules/user/interfaces/user.routes.js";
 const app = Fastify({
-    logger: true
+    logger: {
+        transport: {
+            target: "pino-pretty"
+        }
+    }
 });
 app.get("/", async () => {
     return {
@@ -14,6 +19,7 @@ app.get("/", async () => {
 app.register(tenantRoutes);
 app.register(userRoutes);
 app.register(authRoutes);
+app.register(meRoutes);
 const start = async () => {
     try {
         await app.listen({
