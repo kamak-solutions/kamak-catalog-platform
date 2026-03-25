@@ -8,6 +8,6 @@ export interface CatalogRepository {
         tenantId: string;
         categoryId?: string;
     }): Promise<CatalogItem>;
-    findAllByTenant(tenantId: string): Promise<CatalogItem[]>;
+    findAllByTenant(tenantId: string, categoryId?: string): Promise<CatalogItem[]>;
 }
 //# sourceMappingURL=CatalogRepository.d.ts.map

@@ -9,6 +9,6 @@ export declare class PrismaCatalogRepository implements CatalogRepository {
         tenantId: string;
         categoryId?: string;
     }): Promise<CatalogItem>;
-    findAllByTenant(tenantId: string): Promise<CatalogItem[]>;
+    findAllByTenant(tenantId: string, categoryId?: string): Promise<CatalogItem[]>;
 }
 //# sourceMappingURL=PrismaCatalogRepository.d.ts.map

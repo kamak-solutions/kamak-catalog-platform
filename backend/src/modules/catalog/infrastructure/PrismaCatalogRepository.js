@@ -9,6 +9,12 @@ function mapCatalogItem(item) {
         active: item.active,
         tenantId: item.tenantId,
         categoryId: item.categoryId,
+        category: item.category
+            ? {
+                id: item.category.id,
+                name: item.category.name
+            }
+            : null,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt
     };
@@ -23,13 +29,32 @@ export class PrismaCatalogRepository {
                 type: data.type,
                 tenantId: data.tenantId,
                 categoryId: data.categoryId ?? null
+            },
+            include: {
+                category: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         });
         return mapCatalogItem(item);
     }
-    async findAllByTenant(tenantId) {
+    async findAllByTenant(tenantId, categoryId) {
         const items = await prisma.catalogItem.findMany({
-            where: { tenantId },
+            where: {
+                tenantId,
+                ...(categoryId ? { categoryId } : {})
+            },
+            include: {
+                category: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            },
             orderBy: { createdAt: "desc" }
         });
         return items.map(mapCatalogItem);

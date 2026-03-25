@@ -21,6 +21,9 @@ const createCategoryBodySchema = z.object({
 const listCategoriesParamsSchema = z.object({
     tenantId: z.uuid(),
 });
+const listCatalogItemsQuerySchema = z.object({
+    categoryId: z.uuid().optional(),
+});
 export class CatalogController {
     async createCategory(request, reply) {
         try {
@@ -84,9 +87,10 @@ export class CatalogController {
     async findAllByTenant(request, reply) {
         try {
             const params = listCatalogItemsParamsSchema.parse(request.params);
+            const query = listCatalogItemsQuerySchema.parse(request.query);
             const catalogRepository = new PrismaCatalogRepository();
             const listCatalogItems = new ListCatalogItems(catalogRepository);
-            const items = await listCatalogItems.execute(params.tenantId);
+            const items = await listCatalogItems.execute(params.tenantId, query.categoryId);
             return reply.status(200).send(items);
         }
         catch (error) {

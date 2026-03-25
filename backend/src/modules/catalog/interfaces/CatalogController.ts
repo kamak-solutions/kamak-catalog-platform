@@ -28,6 +28,10 @@ const listCategoriesParamsSchema = z.object({
   tenantId: z.uuid(),
 });
 
+const listCatalogItemsQuerySchema = z.object({
+  categoryId: z.uuid().optional(),
+});
+
 export class CatalogController {
   async createCategory(request: FastifyRequest, reply: FastifyReply) {
     try {
@@ -112,11 +116,15 @@ export class CatalogController {
   async findAllByTenant(request: FastifyRequest, reply: FastifyReply) {
     try {
       const params = listCatalogItemsParamsSchema.parse(request.params);
+      const query = listCatalogItemsQuerySchema.parse(request.query);
 
       const catalogRepository = new PrismaCatalogRepository();
       const listCatalogItems = new ListCatalogItems(catalogRepository);
 
-      const items = await listCatalogItems.execute(params.tenantId);
+      const items = await listCatalogItems.execute(
+        params.tenantId,
+        query.categoryId,
+      );
 
       return reply.status(200).send(items);
     } catch (error) {
