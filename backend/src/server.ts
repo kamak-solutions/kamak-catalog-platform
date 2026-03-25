@@ -3,6 +3,7 @@ import { catalogRoutes } from "./modules/catalog/interfaces/catalog.routes.js";
 import { authRoutes } from "./modules/auth/interfaces/auth.routes.js";
 import { meRoutes } from "./modules/auth/interfaces/me.routes.js";
 import { tenantRoutes } from "./modules/tenant/interfaces/tenat.routes.js";
+import cors from "@fastify/cors";
 import { userRoutes } from "./modules/user/interfaces/user.routes.js";
 
 const app = Fastify({
@@ -13,11 +14,17 @@ const app = Fastify({
   }
 });
 
+
 app.get("/", async () => {
   return {
     status: "ok",
     service: "kamak-catalog-platform-backend"
   };
+});
+
+await app.register(cors, {
+  origin: ["http://localhost:5173"],
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"]
 });
 
 app.register(tenantRoutes);
