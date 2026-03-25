@@ -15,4 +15,15 @@ export async function catalogRoutes(app: FastifyInstance) {
     "/catalog/items/:tenantId",
     catalogController.findAllByTenant.bind(catalogController)
   );
+
+  app.post(
+    "/catalog/categories",
+    { preHandler: authMiddleware },
+    catalogController.createCategory.bind(catalogController)
+  );
+
+  app.get(
+    "/catalog/categories/:tenantId",
+    catalogController.findCategoriesByTenant.bind(catalogController)
+  );
 }

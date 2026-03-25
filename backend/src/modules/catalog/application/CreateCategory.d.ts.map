@@ -1,0 +1,1 @@
+{"version":3,"file":"CreateCategory.d.ts","sourceRoot":"","sources":["CreateCategory.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,kBAAkB,EAAE,MAAM,iCAAiC,CAAC;AAE1E,UAAU,mBAAmB;IAC3B,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;CAClB;AAED,qBAAa,cAAc;IACb,OAAO,CAAC,QAAQ,CAAC,kBAAkB;gBAAlB,kBAAkB,EAAE,kBAAkB;IAE7D,OAAO,CAAC,KAAK,EAAE,mBAAmB;CAczC"}
