@@ -37,4 +37,15 @@ export async function catalogRoutes(app: FastifyInstance) {
     { preHandler: authMiddleware },
     catalogController.findMyCategories.bind(catalogController),
   );
+  app.patch(
+    "/catalog/items/:itemId",
+    { preHandler: authMiddleware },
+    catalogController.updateItem.bind(catalogController),
+  );
+
+  app.patch(
+    "/catalog/items/:itemId/deactivate",
+    { preHandler: authMiddleware },
+    catalogController.deactivateItem.bind(catalogController),
+  );
 }

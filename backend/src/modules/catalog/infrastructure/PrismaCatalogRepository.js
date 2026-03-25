@@ -59,5 +59,43 @@ export class PrismaCatalogRepository {
         });
         return items.map(mapCatalogItem);
     }
+    async findById(itemId) {
+        const item = await prisma.catalogItem.findUnique({
+            where: { id: itemId },
+            include: {
+                category: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+        return item ? mapCatalogItem(item) : null;
+    }
+    async update(data) {
+        const item = await prisma.catalogItem.update({
+            where: {
+                id: data.itemId
+            },
+            data: {
+                ...(data.name !== undefined ? { name: data.name } : {}),
+                ...(data.description !== undefined ? { description: data.description } : {}),
+                ...(data.price !== undefined ? { price: data.price } : {}),
+                ...(data.type !== undefined ? { type: data.type } : {}),
+                ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
+                ...(data.active !== undefined ? { active: data.active } : {})
+            },
+            include: {
+                category: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+        return mapCatalogItem(item);
+    }
 }
 //# sourceMappingURL=PrismaCatalogRepository.js.map

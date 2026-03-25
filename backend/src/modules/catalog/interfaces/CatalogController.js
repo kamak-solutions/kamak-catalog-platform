@@ -3,6 +3,7 @@ import { CreateCatalogItem } from "../application/CreateCatalogItem.js";
 import { ListCatalogItems } from "../application/ListCatalogItems.js";
 import { PrismaCatalogRepository } from "../infrastructure/PrismaCatalogRepository.js";
 import { CreateCategory } from "../application/CreateCategory.js";
+import { UpdateCatalogItem } from "../application/UpdateCatalogItem.js";
 import { ListCategoriesByTenant } from "../application/ListCategoriesByTenant.js";
 import { PrismaCategoryRepository } from "../infrastructure/PrismaCategoryRepository.js";
 const createCatalogItemBodySchema = z.object({
@@ -23,6 +24,17 @@ const listCategoriesParamsSchema = z.object({
 });
 const listCatalogItemsQuerySchema = z.object({
     categoryId: z.uuid().optional(),
+});
+const updateCatalogItemParamsSchema = z.object({
+    itemId: z.uuid(),
+});
+const updateCatalogItemBodySchema = z.object({
+    name: z.string().min(2).optional(),
+    description: z.string().optional(),
+    price: z.string().optional(),
+    type: z.enum(["PRODUCT", "SERVICE"]).optional(),
+    categoryId: z.union([z.uuid(), z.null()]).optional(),
+    active: z.boolean().optional(),
 });
 export class CatalogController {
     async createCategory(request, reply) {
@@ -119,6 +131,52 @@ export class CatalogController {
             const listCategoriesByTenant = new ListCategoriesByTenant(categoryRepository);
             const categories = await listCategoriesByTenant.execute(request.user.tenantId);
             return reply.status(200).send(categories);
+        }
+        catch (error) {
+            return reply.status(400).send({
+                message: error instanceof Error ? error.message : "Invalid request",
+            });
+        }
+    }
+    async updateItem(request, reply) {
+        try {
+            const params = updateCatalogItemParamsSchema.parse(request.params);
+            const body = updateCatalogItemBodySchema.parse(request.body);
+            const catalogRepository = new PrismaCatalogRepository();
+            const updateCatalogItem = new UpdateCatalogItem(catalogRepository);
+            const item = await updateCatalogItem.execute({
+                itemId: params.itemId,
+                tenantId: request.user.tenantId,
+                ...(body.name !== undefined ? { name: body.name } : {}),
+                ...(body.description !== undefined
+                    ? { description: body.description }
+                    : {}),
+                ...(body.price !== undefined ? { price: body.price } : {}),
+                ...(body.type !== undefined ? { type: body.type } : {}),
+                ...(body.categoryId !== undefined
+                    ? { categoryId: body.categoryId }
+                    : {}),
+                ...(body.active !== undefined ? { active: body.active } : {}),
+            });
+            return reply.status(200).send(item);
+        }
+        catch (error) {
+            return reply.status(400).send({
+                message: error instanceof Error ? error.message : "Invalid request",
+            });
+        }
+    }
+    async deactivateItem(request, reply) {
+        try {
+            const params = updateCatalogItemParamsSchema.parse(request.params);
+            const catalogRepository = new PrismaCatalogRepository();
+            const updateCatalogItem = new UpdateCatalogItem(catalogRepository);
+            const item = await updateCatalogItem.execute({
+                itemId: params.itemId,
+                tenantId: request.user.tenantId,
+                active: false,
+            });
+            return reply.status(200).send(item);
         }
         catch (error) {
             return reply.status(400).send({

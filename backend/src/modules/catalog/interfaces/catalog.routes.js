@@ -8,5 +8,7 @@ export async function catalogRoutes(app) {
     app.get("/catalog/categories/:tenantId", catalogController.findCategoriesByTenant.bind(catalogController));
     app.get("/catalog/my-items", { preHandler: authMiddleware }, catalogController.findMyItems.bind(catalogController));
     app.get("/catalog/my-categories", { preHandler: authMiddleware }, catalogController.findMyCategories.bind(catalogController));
+    app.patch("/catalog/items/:itemId", { preHandler: authMiddleware }, catalogController.updateItem.bind(catalogController));
+    app.patch("/catalog/items/:itemId/deactivate", { preHandler: authMiddleware }, catalogController.deactivateItem.bind(catalogController));
 }
 //# sourceMappingURL=catalog.routes.js.map

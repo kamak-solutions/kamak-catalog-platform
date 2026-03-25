@@ -6,5 +6,7 @@ export declare class CatalogController {
     findAllByTenant(request: FastifyRequest, reply: FastifyReply): Promise<never>;
     findMyItems(request: FastifyRequest, reply: FastifyReply): Promise<never>;
     findMyCategories(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+    updateItem(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+    deactivateItem(request: FastifyRequest, reply: FastifyReply): Promise<never>;
 }
 //# sourceMappingURL=CatalogController.d.ts.map
