@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import { catalogRoutes } from "./modules/catalog/interfaces/catalog.routes.js";
 import { authRoutes } from "./modules/auth/interfaces/auth.routes.js";
 import { meRoutes } from "./modules/auth/interfaces/me.routes.js";
 import { tenantRoutes } from "./modules/tenant/interfaces/tenat.routes.js";
@@ -23,7 +24,7 @@ app.register(tenantRoutes);
 app.register(userRoutes);
 app.register(authRoutes);
 app.register(meRoutes);
-
+app.register(catalogRoutes);
 const start = async (): Promise<void> => {
   try {
     await app.listen({

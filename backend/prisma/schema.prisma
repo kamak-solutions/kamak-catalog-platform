@@ -13,11 +13,13 @@ datasource db {
 }
 
 model Tenant {
-  id        String   @id @default(uuid())
-  name      String
-  createdAt DateTime @default(now())
+  id           String        @id @default(uuid())
+  name         String
+  createdAt    DateTime      @default(now())
 
-  users     User[]
+  users        User[]
+  catalogItems CatalogItem[]
+  categories   Category[]
 }
 
 model User {
@@ -36,4 +38,39 @@ enum UserRole {
   OWNER
   ADMIN
   MEMBER
+}
+
+model CatalogItem {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal?        @db.Decimal(10, 2)
+  type        CatalogItemType
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  tenantId    String
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  categoryId  String?
+  category    Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
+model Category {
+  id          String        @id @default(uuid())
+  name        String
+  createdAt   DateTime      @default(now())
+
+  tenantId    String
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  items       CatalogItem[]
+
+  @@unique([tenantId, name])
+}
+
+enum CatalogItemType {
+  PRODUCT
+  SERVICE
 }
