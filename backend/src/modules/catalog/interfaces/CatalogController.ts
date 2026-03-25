@@ -133,4 +133,42 @@ export class CatalogController {
       });
     }
   }
+  async findMyItems(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const query = listCatalogItemsQuerySchema.parse(request.query);
+
+      const catalogRepository = new PrismaCatalogRepository();
+      const listCatalogItems = new ListCatalogItems(catalogRepository);
+
+      const items = await listCatalogItems.execute(
+        request.user.tenantId,
+        query.categoryId,
+      );
+
+      return reply.status(200).send(items);
+    } catch (error) {
+      return reply.status(400).send({
+        message: error instanceof Error ? error.message : "Invalid request",
+      });
+    }
+  }
+
+  async findMyCategories(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const categoryRepository = new PrismaCategoryRepository();
+      const listCategoriesByTenant = new ListCategoriesByTenant(
+        categoryRepository,
+      );
+
+      const categories = await listCategoriesByTenant.execute(
+        request.user.tenantId,
+      );
+
+      return reply.status(200).send(categories);
+    } catch (error) {
+      return reply.status(400).send({
+        message: error instanceof Error ? error.message : "Invalid request",
+      });
+    }
+  }
 }

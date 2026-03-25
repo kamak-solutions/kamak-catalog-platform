@@ -8,22 +8,33 @@ export async function catalogRoutes(app: FastifyInstance) {
   app.post(
     "/catalog/items",
     { preHandler: authMiddleware },
-    catalogController.create.bind(catalogController)
+    catalogController.create.bind(catalogController),
   );
 
   app.get(
     "/catalog/items/:tenantId",
-    catalogController.findAllByTenant.bind(catalogController)
+    catalogController.findAllByTenant.bind(catalogController),
   );
 
   app.post(
     "/catalog/categories",
     { preHandler: authMiddleware },
-    catalogController.createCategory.bind(catalogController)
+    catalogController.createCategory.bind(catalogController),
   );
 
   app.get(
     "/catalog/categories/:tenantId",
-    catalogController.findCategoriesByTenant.bind(catalogController)
+    catalogController.findCategoriesByTenant.bind(catalogController),
+  );
+  app.get(
+    "/catalog/my-items",
+    { preHandler: authMiddleware },
+    catalogController.findMyItems.bind(catalogController),
+  );
+
+  app.get(
+    "/catalog/my-categories",
+    { preHandler: authMiddleware },
+    catalogController.findMyCategories.bind(catalogController),
   );
 }
