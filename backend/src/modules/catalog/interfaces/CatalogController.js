@@ -7,7 +7,6 @@ const createCatalogItemBodySchema = z.object({
     description: z.string().optional(),
     price: z.string().optional(),
     type: z.enum(["PRODUCT", "SERVICE"]),
-    tenantId: z.uuid(),
     categoryId: z.uuid().optional()
 });
 const listCatalogItemsParamsSchema = z.object({
@@ -22,7 +21,7 @@ export class CatalogController {
             const data = {
                 name: body.name,
                 type: body.type,
-                tenantId: body.tenantId
+                tenantId: request.user.tenantId
             };
             if (body.description) {
                 data.description = body.description;

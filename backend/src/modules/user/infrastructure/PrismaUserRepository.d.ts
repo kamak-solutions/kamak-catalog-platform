@@ -8,22 +8,22 @@ export declare class PrismaUserRepository implements UserRepository {
         tenantId: string;
         role?: UserRole;
     }): Promise<{
+        tenantId: string;
+        role: import("../../../generated/prisma/enums.js").UserRole;
         id: string;
         name: string;
+        createdAt: Date;
         email: string;
         passwordHash: string;
-        role: import("../../../generated/prisma/enums.js").UserRole;
-        createdAt: Date;
-        tenantId: string;
     }>;
     findByEmail(email: string): Promise<{
+        tenantId: string;
+        role: import("../../../generated/prisma/enums.js").UserRole;
         id: string;
         name: string;
+        createdAt: Date;
         email: string;
         passwordHash: string;
-        role: import("../../../generated/prisma/enums.js").UserRole;
-        createdAt: Date;
-        tenantId: string;
     } | null>;
 }
 //# sourceMappingURL=PrismaUserRepository.d.ts.map
