@@ -12,6 +12,7 @@ interface CatalogItem {
   name: string;
   description: string | null;
   price: string | null;
+  imageUrl: string | null;
   type: "PRODUCT" | "SERVICE";
   active: boolean;
   tenantId: string;
@@ -83,10 +84,12 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [statusFilter, setStatusFilter] = useState<
     "ALL" | "ACTIVE" | "INACTIVE"
   >("ALL");
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [type, setType] = useState<"PRODUCT" | "SERVICE">("PRODUCT");
   const [categoryId, setCategoryId] = useState("");
 
@@ -98,6 +101,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editPrice, setEditPrice] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
   const [editType, setEditType] = useState<"PRODUCT" | "SERVICE">("PRODUCT");
   const [editCategoryId, setEditCategoryId] = useState("");
   const [editMessage, setEditMessage] = useState("");
@@ -105,7 +109,6 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [deactivatingItemId, setDeactivatingItemId] = useState<string | null>(
     null,
   );
-  const [categoryFilter, setCategoryFilter] = useState("");
 
   const storedUser = useMemo(() => getUserFromStorage(), []);
 
@@ -172,6 +175,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
         name,
         description: description || undefined,
         price: price || undefined,
+        imageUrl: imageUrl || undefined,
         type,
         categoryId: categoryId || undefined,
       });
@@ -179,6 +183,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
       setName("");
       setDescription("");
       setPrice("");
+      setImageUrl("");
       setType("PRODUCT");
       setCategoryId("");
       setFormMessage("Item criado com sucesso.");
@@ -200,6 +205,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
     setEditName(item.name);
     setEditDescription(item.description ?? "");
     setEditPrice(item.price ?? "");
+    setEditImageUrl(item.imageUrl ?? "");
     setEditType(item.type);
     setEditCategoryId(item.categoryId ?? "");
     setEditMessage("");
@@ -210,6 +216,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
     setEditName("");
     setEditDescription("");
     setEditPrice("");
+    setEditImageUrl("");
     setEditType("PRODUCT");
     setEditCategoryId("");
     setEditMessage("");
@@ -224,6 +231,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
         name: editName,
         description: editDescription || undefined,
         price: editPrice || undefined,
+        imageUrl: editImageUrl || undefined,
         type: editType,
         categoryId: editCategoryId || null,
       });
@@ -364,6 +372,14 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                     placeholder="Preço"
                     value={price}
                     onChange={(event) => setPrice(event.target.value)}
+                    style={styles.input}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="URL da imagem"
+                    value={imageUrl}
+                    onChange={(event) => setImageUrl(event.target.value)}
                     style={styles.input}
                   />
 
@@ -553,6 +569,19 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
               />
 
               <select
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value)}
+                style={styles.input}
+              >
+                <option value="">Todas as categorias</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
                 value={statusFilter}
                 onChange={(event) =>
                   setStatusFilter(
@@ -564,18 +593,6 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 <option value="ALL">Todos os status</option>
                 <option value="ACTIVE">Somente ativos</option>
                 <option value="INACTIVE">Somente inativos</option>
-              </select>
-              <select
-                value={categoryFilter}
-                onChange={(event) => setCategoryFilter(event.target.value)}
-                style={styles.input}
-              >
-                <option value="">Todas as categorias</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
               </select>
             </div>
 
@@ -608,6 +625,19 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                     {!isEditing ? (
                       <>
                         <div style={styles.itemTop}>
+                          {item.imageUrl && (
+                            <div style={styles.imageWrapper}>
+                              <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                style={styles.itemImage}
+                                onError={(event) => {
+                                  event.currentTarget.style.display = "none";
+                                }}
+                              />
+                            </div>
+                          )}
+
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={styles.itemTitleRow}>
                               <h3 style={styles.itemTitle}>{item.name}</h3>
@@ -719,6 +749,16 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                           onChange={(event) => setEditPrice(event.target.value)}
                           style={styles.input}
                           placeholder="Preço"
+                        />
+
+                        <input
+                          type="text"
+                          value={editImageUrl}
+                          onChange={(event) =>
+                            setEditImageUrl(event.target.value)
+                          }
+                          style={styles.input}
+                          placeholder="URL da imagem"
                         />
 
                         <select
@@ -883,20 +923,26 @@ const styles: Record<string, CSSProperties> = {
     display: "grid",
     gap: 16,
     height: "calc(100% - 148px)",
+    minHeight: 0,
   },
   contentGridDesktop: {
     gridTemplateColumns: "350px minmax(0, 1fr)",
     alignItems: "start",
     height: "100%",
+    minHeight: 0,
   },
   sidebar: {
     display: "grid",
     gap: 16,
+    minHeight: 0,
   },
   sidebarDesktop: {
     position: "sticky",
     top: 20,
     alignSelf: "start",
+    height: "100%",
+    overflowY: "auto",
+    paddingRight: 6,
   },
   panelCard: {
     background: "#ffffff",
@@ -946,6 +992,8 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     color: "#111827",
     outline: "none",
+    width: "100%",
+    boxSizing: "border-box",
   },
   textarea: {
     padding: "12px 14px",
@@ -956,6 +1004,8 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     color: "#111827",
     outline: "none",
+    width: "100%",
+    boxSizing: "border-box",
   },
   primaryButton: {
     border: "none",
@@ -1026,6 +1076,7 @@ const styles: Record<string, CSSProperties> = {
     overflow: "hidden",
     display: "flex",
     flexDirection: "column",
+    minWidth: 0,
   },
   catalogHeader: {
     marginBottom: 14,
@@ -1069,6 +1120,21 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "start",
     gap: 12,
     flexWrap: "wrap",
+  },
+  imageWrapper: {
+    width: 88,
+    height: 88,
+    borderRadius: 16,
+    overflow: "hidden",
+    border: "1px solid #e2e8f0",
+    background: "#f8fafc",
+    flexShrink: 0,
+  },
+  itemImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
   },
   itemTitleRow: {
     display: "flex",

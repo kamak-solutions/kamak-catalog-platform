@@ -42,6 +42,7 @@ const updateCatalogItemBodySchema = z.object({
   name: z.string().min(2).optional(),
   description: z.string().optional(),
   price: z.string().optional(),
+  imageUrl: z.url().optional(),
   type: z.enum(["PRODUCT", "SERVICE"]).optional(),
   categoryId: z.union([z.uuid(), z.null()]).optional(),
   active: z.boolean().optional(),
@@ -86,6 +87,7 @@ export class CatalogController {
       });
     }
   }
+
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = createCatalogItemBodySchema.parse(request.body);
@@ -97,6 +99,7 @@ export class CatalogController {
         name: string;
         description?: string;
         price?: string;
+        imageUrl?: string;
         type: CatalogItemType;
         tenantId: string;
         categoryId?: string;
@@ -112,6 +115,10 @@ export class CatalogController {
 
       if (body.price) {
         data.price = body.price;
+      }
+
+      if (body.imageUrl) {
+        data.imageUrl = body.imageUrl;
       }
 
       if (body.categoryId) {
@@ -148,6 +155,7 @@ export class CatalogController {
       });
     }
   }
+
   async findMyItems(request: FastifyRequest, reply: FastifyReply) {
     try {
       const query = listCatalogItemsQuerySchema.parse(request.query);
@@ -186,6 +194,7 @@ export class CatalogController {
       });
     }
   }
+
   async updateItem(request: FastifyRequest, reply: FastifyReply) {
     try {
       const params = updateCatalogItemParamsSchema.parse(request.params);
@@ -202,6 +211,7 @@ export class CatalogController {
           ? { description: body.description }
           : {}),
         ...(body.price !== undefined ? { price: body.price } : {}),
+        ...(body.imageUrl !== undefined ? { imageUrl: body.imageUrl } : {}),
         ...(body.type !== undefined ? { type: body.type } : {}),
         ...(body.categoryId !== undefined
           ? { categoryId: body.categoryId }

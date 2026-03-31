@@ -33,6 +33,7 @@ const updateCatalogItemBodySchema = z.object({
     name: z.string().min(2).optional(),
     description: z.string().optional(),
     price: z.string().optional(),
+    imageUrl: z.url().optional(),
     type: z.enum(["PRODUCT", "SERVICE"]).optional(),
     categoryId: z.union([z.uuid(), z.null()]).optional(),
     active: z.boolean().optional(),
@@ -84,6 +85,9 @@ export class CatalogController {
             }
             if (body.price) {
                 data.price = body.price;
+            }
+            if (body.imageUrl) {
+                data.imageUrl = body.imageUrl;
             }
             if (body.categoryId) {
                 data.categoryId = body.categoryId;
@@ -153,6 +157,7 @@ export class CatalogController {
                     ? { description: body.description }
                     : {}),
                 ...(body.price !== undefined ? { price: body.price } : {}),
+                ...(body.imageUrl !== undefined ? { imageUrl: body.imageUrl } : {}),
                 ...(body.type !== undefined ? { type: body.type } : {}),
                 ...(body.categoryId !== undefined
                     ? { categoryId: body.categoryId }
