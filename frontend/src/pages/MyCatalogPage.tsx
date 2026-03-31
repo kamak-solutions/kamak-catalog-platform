@@ -94,6 +94,18 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [categoryMessage, setCategoryMessage] = useState("");
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editType, setEditType] = useState<"PRODUCT" | "SERVICE">("PRODUCT");
+  const [editCategoryId, setEditCategoryId] = useState("");
+  const [editMessage, setEditMessage] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [deactivatingItemId, setDeactivatingItemId] = useState<string | null>(
+    null,
+  );
+
   const storedUser = useMemo(() => getUserFromStorage(), []);
 
   async function loadItems() {
@@ -179,6 +191,65 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
       setFormMessage("Falha ao criar item.");
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  function startEditing(item: CatalogItem) {
+    setEditingItemId(item.id);
+    setEditName(item.name);
+    setEditDescription(item.description ?? "");
+    setEditPrice(item.price ?? "");
+    setEditType(item.type);
+    setEditCategoryId(item.categoryId ?? "");
+    setEditMessage("");
+  }
+
+  function cancelEditing() {
+    setEditingItemId(null);
+    setEditName("");
+    setEditDescription("");
+    setEditPrice("");
+    setEditType("PRODUCT");
+    setEditCategoryId("");
+    setEditMessage("");
+  }
+
+  async function handleSaveEdit(itemId: string) {
+    setEditMessage("");
+    setIsSavingEdit(true);
+
+    try {
+      await api.patch(`/catalog/items/${itemId}`, {
+        name: editName,
+        description: editDescription || undefined,
+        price: editPrice || undefined,
+        type: editType,
+        categoryId: editCategoryId || null,
+      });
+
+      setEditMessage("Item atualizado com sucesso.");
+      await loadItems();
+      setEditingItemId(null);
+    } catch {
+      setEditMessage("Falha ao atualizar item.");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  }
+
+  async function handleToggleActive(itemId: string, active: boolean) {
+    setDeactivatingItemId(itemId);
+
+    try {
+      await api.patch(`/catalog/items/${itemId}`, {
+        active,
+      });
+
+      await loadItems();
+    } catch {
+      setMessage("Falha ao atualizar status do item.");
+    } finally {
+      setDeactivatingItemId(null);
     }
   }
 
@@ -507,58 +578,200 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 minHeight: 0,
               }}
             >
-              {filteredItems.map((item) => (
-                <article
-                  key={item.id}
-                  style={{
-                    ...styles.itemCard,
-                    background: item.active ? "#ffffff" : "#fbfcfe",
-                  }}
-                >
-                  <div style={styles.itemTop}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={styles.itemTitleRow}>
-                        <h3 style={styles.itemTitle}>{item.name}</h3>
+              {filteredItems.map((item) => {
+                const isEditing = editingItemId === item.id;
 
-                        <span
-                          style={{
-                            ...styles.pill,
-                            background:
-                              item.type === "PRODUCT" ? "#e8f0ff" : "#e9f9ef",
-                            color:
-                              item.type === "PRODUCT" ? "#2457d6" : "#198754",
-                          }}
-                        >
-                          {item.type === "PRODUCT" ? "Produto" : "Serviço"}
-                        </span>
+                return (
+                  <article
+                    key={item.id}
+                    style={{
+                      ...styles.itemCard,
+                      background: item.active ? "#ffffff" : "#fbfcfe",
+                    }}
+                  >
+                    {!isEditing ? (
+                      <>
+                        <div style={styles.itemTop}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={styles.itemTitleRow}>
+                              <h3 style={styles.itemTitle}>{item.name}</h3>
 
-                        <span
-                          style={{
-                            ...styles.pill,
-                            background: item.active ? "#eaf8ef" : "#fff0f0",
-                            color: item.active ? "#15803d" : "#b91c1c",
-                          }}
+                              <span
+                                style={{
+                                  ...styles.pill,
+                                  background:
+                                    item.type === "PRODUCT"
+                                      ? "#e8f0ff"
+                                      : "#e9f9ef",
+                                  color:
+                                    item.type === "PRODUCT"
+                                      ? "#2457d6"
+                                      : "#198754",
+                                }}
+                              >
+                                {item.type === "PRODUCT"
+                                  ? "Produto"
+                                  : "Serviço"}
+                              </span>
+
+                              <span
+                                style={{
+                                  ...styles.pill,
+                                  background: item.active
+                                    ? "#eaf8ef"
+                                    : "#fff0f0",
+                                  color: item.active ? "#15803d" : "#b91c1c",
+                                }}
+                              >
+                                {item.active ? "Ativo" : "Inativo"}
+                              </span>
+                            </div>
+
+                            <p style={styles.itemDescription}>
+                              {item.description ?? "Sem descrição"}
+                            </p>
+                          </div>
+
+                          <div style={styles.actionsRow}>
+                            <button
+                              type="button"
+                              onClick={() => startEditing(item)}
+                              style={styles.secondaryButton}
+                            >
+                              Editar
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleToggleActive(item.id, !item.active)
+                              }
+                              disabled={deactivatingItemId === item.id}
+                              style={{
+                                ...(item.active
+                                  ? styles.dangerButton
+                                  : styles.primaryButton),
+                                opacity:
+                                  deactivatingItemId === item.id ? 0.7 : 1,
+                              }}
+                            >
+                              {deactivatingItemId === item.id
+                                ? "Atualizando..."
+                                : item.active
+                                  ? "Desativar"
+                                  : "Ativar"}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div style={styles.metaRow}>
+                          <span style={styles.metaBadge}>
+                            Preço: {formatPrice(item.price)}
+                          </span>
+                          <span style={styles.metaBadge}>
+                            Categoria: {item.category?.name ?? "Sem categoria"}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ display: "grid", gap: 12 }}>
+                        <h3 style={{ ...styles.itemTitle, margin: 0 }}>
+                          Editando item
+                        </h3>
+
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(event) => setEditName(event.target.value)}
+                          style={styles.input}
+                          placeholder="Nome do item"
+                        />
+
+                        <textarea
+                          value={editDescription}
+                          onChange={(event) =>
+                            setEditDescription(event.target.value)
+                          }
+                          rows={3}
+                          style={styles.textarea}
+                          placeholder="Descrição"
+                        />
+
+                        <input
+                          type="text"
+                          value={editPrice}
+                          onChange={(event) => setEditPrice(event.target.value)}
+                          style={styles.input}
+                          placeholder="Preço"
+                        />
+
+                        <select
+                          value={editType}
+                          onChange={(event) =>
+                            setEditType(
+                              event.target.value as "PRODUCT" | "SERVICE",
+                            )
+                          }
+                          style={styles.input}
                         >
-                          {item.active ? "Ativo" : "Inativo"}
-                        </span>
+                          <option value="PRODUCT">Produto</option>
+                          <option value="SERVICE">Serviço</option>
+                        </select>
+
+                        <select
+                          value={editCategoryId}
+                          onChange={(event) =>
+                            setEditCategoryId(event.target.value)
+                          }
+                          style={styles.input}
+                        >
+                          <option value="">Sem categoria</option>
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+
+                        <div style={styles.actionsRow}>
+                          <button
+                            type="button"
+                            onClick={() => handleSaveEdit(item.id)}
+                            disabled={isSavingEdit}
+                            style={{
+                              ...styles.primaryButton,
+                              opacity: isSavingEdit ? 0.75 : 1,
+                            }}
+                          >
+                            {isSavingEdit ? "Salvando..." : "Salvar"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={cancelEditing}
+                            style={styles.secondaryButton}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+
+                        {editMessage && (
+                          <p
+                            style={{
+                              ...styles.feedback,
+                              color: editMessage.includes("sucesso")
+                                ? "#15803d"
+                                : "#b91c1c",
+                            }}
+                          >
+                            {editMessage}
+                          </p>
+                        )}
                       </div>
-
-                      <p style={styles.itemDescription}>
-                        {item.description ?? "Sem descrição"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div style={styles.metaRow}>
-                    <span style={styles.metaBadge}>
-                      Preço: {formatPrice(item.price)}
-                    </span>
-                    <span style={styles.metaBadge}>
-                      Categoria: {item.category?.name ?? "Sem categoria"}
-                    </span>
-                  </div>
-                </article>
-              ))}
+                    )}
+                  </article>
+                );
+              })}
             </div>
           </section>
         </div>
@@ -738,6 +951,24 @@ const styles: Record<string, CSSProperties> = {
     cursor: "pointer",
     boxShadow: "0 10px 20px rgba(37, 99, 235, 0.18)",
   },
+  secondaryButton: {
+    border: "1px solid #cfd8e3",
+    background: "#ffffff",
+    color: "#0f172a",
+    padding: "11px 14px",
+    borderRadius: 12,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+  dangerButton: {
+    border: "none",
+    background: "#b91c1c",
+    color: "#ffffff",
+    padding: "11px 14px",
+    borderRadius: 12,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
   feedback: {
     margin: 0,
     fontSize: 14,
@@ -861,5 +1092,11 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: 999,
     fontSize: 12,
     border: "1px solid #edf2f7",
+  },
+  actionsRow: {
+    display: "flex",
+    gap: 8,
+    flexWrap: "wrap",
+    alignItems: "center",
   },
 };
