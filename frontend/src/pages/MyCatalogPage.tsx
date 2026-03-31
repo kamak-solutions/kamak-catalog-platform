@@ -21,7 +21,11 @@ interface CatalogItem {
   updatedAt: string;
 }
 
-export function MyCatalogPage() {
+interface MyCatalogPageProps {
+  onLogout: () => void;
+}
+
+export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [categories, setCategories] = useState<CatalogCategory[]>([]);
   const [message, setMessage] = useState("Carregando...");
@@ -48,7 +52,7 @@ export function MyCatalogPage() {
       const response = await api.get<CatalogCategory[]>("/catalog/my-categories");
       setCategories(response.data);
     } catch {
-      // opcionalmente tratar depois
+      // tratar depois
     }
   }
 
@@ -85,7 +89,27 @@ export function MyCatalogPage() {
 
   return (
     <main style={{ maxWidth: 900, margin: "40px auto", padding: 24 }}>
-      <h1>Meu Catálogo</h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24
+        }}
+      >
+        <h1>Meu Catálogo</h1>
+
+        <button
+          type="button"
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            onLogout();
+          }}
+        >
+          Sair
+        </button>
+      </div>
 
       <section
         style={{

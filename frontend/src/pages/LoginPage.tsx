@@ -3,7 +3,11 @@ import type { FormEvent } from "react";
 import { api } from "../services/api";
 import type { LoginResponse } from "../types/auth";
 
-export function LoginPage() {
+interface LoginPageProps {
+  onLoginSuccess: () => void;
+}
+
+export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [email, setEmail] = useState("maria@example.com");
   const [password, setPassword] = useState("123456");
   const [message, setMessage] = useState("");
@@ -22,7 +26,8 @@ export function LoginPage() {
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       setMessage("Login realizado com sucesso.");
-    } catch (error) {
+      onLoginSuccess();
+    } catch {
       setMessage("Falha no login.");
     }
   }
