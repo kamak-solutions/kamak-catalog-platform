@@ -105,6 +105,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [deactivatingItemId, setDeactivatingItemId] = useState<string | null>(
     null,
   );
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   const storedUser = useMemo(() => getUserFromStorage(), []);
 
@@ -263,7 +264,10 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
       (statusFilter === "ACTIVE" && item.active) ||
       (statusFilter === "INACTIVE" && !item.active);
 
-    return matchesSearch && matchesStatus;
+    const matchesCategory =
+      !categoryFilter || item.categoryId === categoryFilter;
+
+    return matchesSearch && matchesStatus && matchesCategory;
   });
 
   const activeItems = items.filter((item) => item.active).length;
@@ -560,6 +564,18 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 <option value="ALL">Todos os status</option>
                 <option value="ACTIVE">Somente ativos</option>
                 <option value="INACTIVE">Somente inativos</option>
+              </select>
+              <select
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value)}
+                style={styles.input}
+              >
+                <option value="">Todas as categorias</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1020,7 +1036,7 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 16,
   },
   toolbarDesktop: {
-    gridTemplateColumns: "minmax(0, 1fr) 220px",
+    gridTemplateColumns: "minmax(0, 1fr) 220px 220px",
     alignItems: "center",
   },
   loadingText: {
