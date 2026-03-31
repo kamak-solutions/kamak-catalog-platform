@@ -5,6 +5,7 @@ interface CreateCatalogItemInput {
   name: string;
   description?: string;
   price?: string;
+  imageUrl?: string;
   type: CatalogItemType;
   tenantId: string;
   categoryId?: string;
@@ -30,6 +31,7 @@ export class CreateCatalogItem {
       name: string;
       description?: string;
       price?: string;
+      imageUrl?: string;
       type: CatalogItemType;
       tenantId: string;
       categoryId?: string;
@@ -45,6 +47,10 @@ export class CreateCatalogItem {
 
     if (input.price) {
       data.price = input.price;
+    }
+
+    if (input.imageUrl) {
+      data.imageUrl = input.imageUrl;
     }
 
     if (input.categoryId) {

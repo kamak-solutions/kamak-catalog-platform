@@ -10,6 +10,7 @@ const createCatalogItemBodySchema = z.object({
     name: z.string().min(2),
     description: z.string().optional(),
     price: z.string().optional(),
+    imageUrl: z.url().optional(),
     type: z.enum(["PRODUCT", "SERVICE"]),
     categoryId: z.uuid().optional(),
 });

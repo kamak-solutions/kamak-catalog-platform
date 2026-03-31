@@ -24,6 +24,9 @@ export class CreateCatalogItem {
         if (input.price) {
             data.price = input.price;
         }
+        if (input.imageUrl) {
+            data.imageUrl = input.imageUrl;
+        }
         if (input.categoryId) {
             data.categoryId = input.categoryId;
         }

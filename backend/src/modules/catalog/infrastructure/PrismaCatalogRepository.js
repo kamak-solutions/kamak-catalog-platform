@@ -5,6 +5,7 @@ function mapCatalogItem(item) {
         name: item.name,
         description: item.description,
         price: item.price ? item.price.toString() : null,
+        imageUrl: item.imageUrl,
         type: item.type,
         active: item.active,
         tenantId: item.tenantId,
@@ -26,6 +27,7 @@ export class PrismaCatalogRepository {
                 name: data.name,
                 description: data.description ?? null,
                 price: data.price ?? null,
+                imageUrl: data.imageUrl ?? null,
                 type: data.type,
                 tenantId: data.tenantId,
                 categoryId: data.categoryId ?? null
@@ -82,6 +84,7 @@ export class PrismaCatalogRepository {
                 ...(data.name !== undefined ? { name: data.name } : {}),
                 ...(data.description !== undefined ? { description: data.description } : {}),
                 ...(data.price !== undefined ? { price: data.price } : {}),
+                ...(data.imageUrl !== undefined ? { imageUrl: data.imageUrl } : {}),
                 ...(data.type !== undefined ? { type: data.type } : {}),
                 ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
                 ...(data.active !== undefined ? { active: data.active } : {})

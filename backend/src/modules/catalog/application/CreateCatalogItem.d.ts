@@ -4,6 +4,7 @@ interface CreateCatalogItemInput {
     name: string;
     description?: string;
     price?: string;
+    imageUrl?: string;
     type: CatalogItemType;
     tenantId: string;
     categoryId?: string;

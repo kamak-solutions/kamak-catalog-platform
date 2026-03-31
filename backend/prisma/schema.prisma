@@ -45,6 +45,7 @@ model CatalogItem {
   name        String
   description String?
   price       Decimal?        @db.Decimal(10, 2)
+  imageUrl    String?
   type        CatalogItemType
   active      Boolean         @default(true)
   createdAt   DateTime        @default(now())

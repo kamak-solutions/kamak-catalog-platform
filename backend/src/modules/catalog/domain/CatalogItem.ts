@@ -10,6 +10,7 @@ export interface CatalogItem {
   name: string;
   description: string | null;
   price: string | null;
+  imageUrl: string | null;
   type: CatalogItemType;
   active: boolean;
   tenantId: string;

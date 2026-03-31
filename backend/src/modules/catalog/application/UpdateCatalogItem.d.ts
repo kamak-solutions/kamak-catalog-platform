@@ -6,6 +6,7 @@ interface UpdateCatalogItemInput {
     name?: string;
     description?: string;
     price?: string;
+    imageUrl?: string;
     type?: CatalogItemType;
     categoryId?: string | null;
     active?: boolean;

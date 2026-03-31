@@ -7,6 +7,7 @@ interface UpdateCatalogItemInput {
   name?: string;
   description?: string;
   price?: string;
+  imageUrl?: string;
   type?: CatalogItemType;
   categoryId?: string | null;
   active?: boolean;
@@ -40,12 +41,13 @@ export class UpdateCatalogItem {
       name?: string;
       description?: string;
       price?: string;
+      imageUrl?: string;
       type?: CatalogItemType;
       categoryId?: string | null;
       active?: boolean;
     } = {
       itemId: input.itemId,
-      tenantId: input.tenantId
+      tenantId: input.tenantId,
     };
 
     if (input.name !== undefined) {
@@ -61,6 +63,9 @@ export class UpdateCatalogItem {
 
     if (input.price !== undefined) {
       data.price = input.price;
+    }
+    if (input.imageUrl !== undefined) {
+      data.imageUrl = input.imageUrl;
     }
 
     if (input.type !== undefined) {

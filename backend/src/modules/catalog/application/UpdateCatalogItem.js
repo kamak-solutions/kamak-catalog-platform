@@ -19,7 +19,7 @@ export class UpdateCatalogItem {
         }
         const data = {
             itemId: input.itemId,
-            tenantId: input.tenantId
+            tenantId: input.tenantId,
         };
         if (input.name !== undefined) {
             if (input.name.trim().length < 2) {
@@ -32,6 +32,9 @@ export class UpdateCatalogItem {
         }
         if (input.price !== undefined) {
             data.price = input.price;
+        }
+        if (input.imageUrl !== undefined) {
+            data.imageUrl = input.imageUrl;
         }
         if (input.type !== undefined) {
             if (!["PRODUCT", "SERVICE"].includes(input.type)) {

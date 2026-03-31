@@ -4,6 +4,7 @@ export interface CatalogRepository {
         name: string;
         description?: string;
         price?: string;
+        imageUrl?: string;
         type: CatalogItemType;
         tenantId: string;
         categoryId?: string;
@@ -16,6 +17,7 @@ export interface CatalogRepository {
         name?: string;
         description?: string;
         price?: string;
+        imageUrl?: string;
         type?: CatalogItemType;
         categoryId?: string | null;
         active?: boolean;
