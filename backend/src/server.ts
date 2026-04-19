@@ -6,6 +6,7 @@ import { tenantRoutes } from "./modules/tenant/interfaces/tenat.routes.js";
 import cors from "@fastify/cors";
 import { userRoutes } from "./modules/user/interfaces/user.routes.js";
 import { registerRoutes } from "./modules/auth/interfaces/register.routes.js";
+import { publicCatalogRoutes } from "./modules/catalog/interfaces/public-catalog.routes.js";
 
 const app = Fastify({
   logger: {
@@ -34,6 +35,7 @@ app.register(registerRoutes);
 app.register(authRoutes);
 app.register(meRoutes);
 app.register(catalogRoutes);
+app.register(publicCatalogRoutes);
 const start = async (): Promise<void> => {
   try {
     await app.listen({

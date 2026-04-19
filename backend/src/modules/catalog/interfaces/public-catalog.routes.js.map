@@ -1,0 +1,1 @@
+{"version":3,"file":"public-catalog.routes.js","sourceRoot":"","sources":["public-catalog.routes.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,uBAAuB,EAAE,MAAM,8BAA8B,CAAC;AAEvE,MAAM,CAAC,KAAK,UAAU,mBAAmB,CAAC,GAAoB;IAC5D,MAAM,uBAAuB,GAAG,IAAI,uBAAuB,EAAE,CAAC;IAE9D,GAAG,CAAC,GAAG,CACL,2BAA2B,EAC3B,uBAAuB,CAAC,MAAM,CAAC,IAAI,CAAC,uBAAuB,CAAC,CAC7D,CAAC;AACJ,CAAC"}

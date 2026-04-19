@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { MyCatalogPage } from "./pages/MyCatalogPage";
+import { PublicCatalogPage } from "./pages/PublicCatalogPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { useSession } from "./hooks/useSession";
 
-function App() {
+function AuthenticatedApp() {
   const [sessionVersion, setSessionVersion] = useState(0);
   const [authView, setAuthView] = useState<"login" | "register">("login");
 
@@ -38,6 +40,15 @@ function App() {
   }
 
   return <MyCatalogPage onLogout={refreshSession} />;
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/catalogo/:tenantId" element={<PublicCatalogPage />} />
+      <Route path="*" element={<AuthenticatedApp />} />
+    </Routes>
+  );
 }
 
 export default App;

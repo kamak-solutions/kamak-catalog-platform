@@ -1,0 +1,21 @@
+import { z } from "zod";
+import { GetPublicCatalog } from "../application/GetPublicCatalog.js";
+const publicCatalogParamsSchema = z.object({
+    tenantId: z.uuid(),
+});
+export class PublicCatalogController {
+    async handle(request, reply) {
+        try {
+            const params = publicCatalogParamsSchema.parse(request.params);
+            const getPublicCatalog = new GetPublicCatalog();
+            const result = await getPublicCatalog.execute(params.tenantId);
+            return reply.status(200).send(result);
+        }
+        catch (error) {
+            return reply.status(404).send({
+                message: error instanceof Error ? error.message : "Catalog not found",
+            });
+        }
+    }
+}
+//# sourceMappingURL=PublicCatalogController.js.map
