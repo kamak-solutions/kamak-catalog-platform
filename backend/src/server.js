@@ -5,6 +5,7 @@ import { meRoutes } from "./modules/auth/interfaces/me.routes.js";
 import { tenantRoutes } from "./modules/tenant/interfaces/tenat.routes.js";
 import cors from "@fastify/cors";
 import { userRoutes } from "./modules/user/interfaces/user.routes.js";
+import { registerRoutes } from "./modules/auth/interfaces/register.routes.js";
 const app = Fastify({
     logger: {
         transport: {
@@ -24,6 +25,7 @@ await app.register(cors, {
 });
 app.register(tenantRoutes);
 app.register(userRoutes);
+app.register(registerRoutes);
 app.register(authRoutes);
 app.register(meRoutes);
 app.register(catalogRoutes);
