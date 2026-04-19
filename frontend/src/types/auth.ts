@@ -7,7 +7,19 @@ export interface AuthUser {
   createdAt: string;
 }
 
+export interface AuthTenant {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
 export interface LoginResponse {
   token: string;
   user: AuthUser;
+}
+
+export interface RegisterResponse {
+  token: string;
+  user: AuthUser;
+  tenant: AuthTenant;
 }

@@ -1,38 +1,47 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { api } from "../services/api";
-import type { LoginResponse } from "../types/auth";
+import type { RegisterResponse } from "../types/auth";
 
-interface LoginPageProps {
-  onLoginSuccess: () => void;
-  onGoToRegister: () => void;
+interface RegisterPageProps {
+  onRegisterSuccess: () => void;
+  onGoToLogin: () => void;
 }
 
-export function LoginPage({
-  onLoginSuccess,
-  onGoToRegister,
-}: LoginPageProps) {
-  const [email, setEmail] = useState("maria@example.com");
-  const [password, setPassword] = useState("123456");
+export function RegisterPage({
+  onRegisterSuccess,
+  onGoToLogin,
+}: RegisterPageProps) {
+  const [userName, setUserName] = useState("");
+  const [tenantName, setTenantName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
+    setIsSubmitting(true);
 
     try {
-      const response = await api.post<LoginResponse>("/auth/login", {
+      const response = await api.post<RegisterResponse>("/auth/register", {
+        userName,
+        tenantName,
         email,
         password,
       });
 
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("tenant", JSON.stringify(response.data.tenant));
 
-      setMessage("Login realizado com sucesso.");
-      onLoginSuccess();
+      setMessage("Cadastro realizado com sucesso.");
+      onRegisterSuccess();
     } catch {
-      setMessage("Falha no login.");
+      setMessage("Falha ao cadastrar conta.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -41,13 +50,29 @@ export function LoginPage({
       <section style={styles.card}>
         <div style={styles.header}>
           <p style={styles.eyebrow}>Plataforma</p>
-          <h1 style={styles.title}>Entrar</h1>
+          <h1 style={styles.title}>Criar conta</h1>
           <p style={styles.subtitle}>
-            Acesse sua conta para gerenciar catálogo, categorias e itens.
+            Cadastre sua conta e crie sua loja para começar a montar o catálogo.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            type="text"
+            placeholder="Seu nome"
+            value={userName}
+            onChange={(event) => setUserName(event.target.value)}
+            style={styles.input}
+          />
+
+          <input
+            type="text"
+            placeholder="Nome da loja ou serviço"
+            value={tenantName}
+            onChange={(event) => setTenantName(event.target.value)}
+            style={styles.input}
+          />
+
           <input
             type="email"
             placeholder="E-mail"
@@ -64,8 +89,15 @@ export function LoginPage({
             style={styles.input}
           />
 
-          <button type="submit" style={styles.primaryButton}>
-            Entrar
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            style={{
+              ...styles.primaryButton,
+              opacity: isSubmitting ? 0.75 : 1,
+            }}
+          >
+            {isSubmitting ? "Criando conta..." : "Criar conta"}
           </button>
         </form>
 
@@ -80,8 +112,8 @@ export function LoginPage({
           </p>
         )}
 
-        <button type="button" onClick={onGoToRegister} style={styles.linkButton}>
-          Criar nova conta
+        <button type="button" onClick={onGoToLogin} style={styles.linkButton}>
+          Já tenho conta
         </button>
       </section>
     </main>
@@ -100,7 +132,7 @@ const styles = {
   },
   card: {
     width: "100%",
-    maxWidth: 460,
+    maxWidth: 480,
     background: "#ffffff",
     border: "1px solid #dbe4f0",
     borderRadius: 24,
