@@ -73,6 +73,7 @@ function useIsDesktop() {
 
 export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const isDesktop = useIsDesktop();
+  const isMobile = !isDesktop;
 
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [categories, setCategories] = useState<CatalogCategory[]>([]);
@@ -109,6 +110,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [deactivatingItemId, setDeactivatingItemId] = useState<string | null>(
     null,
   );
+
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const storedUser = useMemo(() => getUserFromStorage(), []);
 
@@ -162,6 +166,10 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   useEffect(() => {
     if (isDesktop) {
       setIsFormOpen(true);
+      setIsItemModalOpen(false);
+      setIsCategoryModalOpen(false);
+    } else {
+      setIsFormOpen(false);
     }
   }, [isDesktop]);
 
@@ -188,8 +196,8 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
       setCategoryId("");
       setFormMessage("Item criado com sucesso.");
 
-      if (!isDesktop) {
-        setIsFormOpen(false);
+      if (isMobile) {
+        setIsItemModalOpen(false);
       }
 
       await loadItems();
@@ -282,8 +290,18 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const inactiveItems = items.filter((item) => !item.active).length;
 
   return (
-    <main style={styles.page}>
-      <div style={styles.container}>
+    <main
+      style={{
+        ...styles.page,
+        ...(isDesktop ? styles.pageDesktop : styles.pageMobile),
+      }}
+    >
+      <div
+        style={{
+          ...styles.container,
+          ...(isDesktop ? styles.containerDesktop : styles.containerMobile),
+        }}
+      >
         <header style={styles.headerCard}>
           <div style={styles.headerTop}>
             <div>
@@ -320,13 +338,13 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
         <div
           style={{
             ...styles.contentGrid,
-            ...(isDesktop ? styles.contentGridDesktop : {}),
+            ...(isDesktop ? styles.contentGridDesktop : styles.contentGridMobile),
           }}
         >
           <aside
             style={{
               ...styles.sidebar,
-              ...(isDesktop ? styles.sidebarDesktop : {}),
+              ...(isDesktop ? styles.sidebarDesktop : styles.sidebarMobile),
             }}
           >
             <section style={styles.panelCard}>
@@ -338,7 +356,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                   </p>
                 </div>
 
-                {!isDesktop && (
+                {isDesktop && (
                   <button
                     type="button"
                     onClick={() => setIsFormOpen((prev) => !prev)}
@@ -349,7 +367,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 )}
               </div>
 
-              {isFormOpen && (
+              {isDesktop && isFormOpen && (
                 <form onSubmit={handleSubmit} style={styles.form}>
                   <input
                     type="text"
@@ -432,6 +450,18 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                   )}
                 </form>
               )}
+
+              {isMobile && (
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsItemModalOpen(true)}
+                    style={styles.primaryButton}
+                  >
+                    + Novo item
+                  </button>
+                </div>
+              )}
             </section>
 
             <section style={styles.panelCard}>
@@ -440,111 +470,121 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 Crie e visualize categorias do seu catálogo.
               </p>
 
-              <form
-                onSubmit={handleCreateCategory}
-                style={{ ...styles.form, marginTop: 14 }}
-              >
-                <input
-                  type="text"
-                  placeholder="Nome da categoria"
-                  value={categoryName}
-                  onChange={(event) => setCategoryName(event.target.value)}
-                  style={styles.input}
-                />
-
-                <button
-                  type="submit"
-                  disabled={isCreatingCategory}
-                  style={{
-                    ...styles.primaryButton,
-                    opacity: isCreatingCategory ? 0.75 : 1,
-                  }}
-                >
-                  {isCreatingCategory ? "Criando..." : "Criar categoria"}
-                </button>
-
-                {categoryMessage && (
-                  <p
-                    style={{
-                      ...styles.feedback,
-                      color: categoryMessage.includes("sucesso")
-                        ? "#15803d"
-                        : "#b91c1c",
-                    }}
+              {isDesktop ? (
+                <>
+                  <form
+                    onSubmit={handleCreateCategory}
+                    style={{ ...styles.form, marginTop: 14 }}
                   >
-                    {categoryMessage}
-                  </p>
-                )}
-              </form>
+                    <input
+                      type="text"
+                      placeholder="Nome da categoria"
+                      value={categoryName}
+                      onChange={(event) => setCategoryName(event.target.value)}
+                      style={styles.input}
+                    />
 
-              <div
-                style={{
-                  display: "grid",
-                  gap: 8,
-                  marginTop: 14,
-                }}
-              >
-                {categories.length === 0 && (
-                  <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>
-                    Nenhuma categoria cadastrada.
-                  </p>
-                )}
+                    <button
+                      type="submit"
+                      disabled={isCreatingCategory}
+                      style={{
+                        ...styles.primaryButton,
+                        opacity: isCreatingCategory ? 0.75 : 1,
+                      }}
+                    >
+                      {isCreatingCategory ? "Criando..." : "Criar categoria"}
+                    </button>
 
-                {categories.map((category) => (
+                    {categoryMessage && (
+                      <p
+                        style={{
+                          ...styles.feedback,
+                          color: categoryMessage.includes("sucesso")
+                            ? "#15803d"
+                            : "#b91c1c",
+                        }}
+                      >
+                        {categoryMessage}
+                      </p>
+                    )}
+                  </form>
+
                   <div
-                    key={category.id}
                     style={{
-                      padding: "10px 12px",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 12,
-                      background: "#f8fafc",
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: "#334155",
+                      display: "grid",
+                      gap: 8,
+                      marginTop: 14,
                     }}
                   >
-                    {category.name}
+                    {categories.length === 0 && (
+                      <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>
+                        Nenhuma categoria cadastrada.
+                      </p>
+                    )}
+
+                    {categories.map((category) => (
+                      <div key={category.id} style={styles.categoryListItem}>
+                        {category.name}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    style={styles.secondaryButton}
+                  >
+                    Gerenciar categorias
+                  </button>
+                </div>
+              )}
             </section>
 
-            <section style={styles.panelCard}>
-              <h2 style={styles.sectionTitle}>Resumo</h2>
+            {isDesktop && (
+              <section style={styles.panelCard}>
+                <h2 style={styles.sectionTitle}>Resumo</h2>
 
-              <div style={styles.statsGrid}>
-                <div style={{ ...styles.statCard, background: "#eef4ff" }}>
-                  <span style={{ ...styles.statLabel, color: "#1d4ed8" }}>
-                    Total
-                  </span>
-                  <strong style={styles.statValue}>{items.length}</strong>
-                </div>
+                <div style={styles.statsGrid}>
+                  <div style={{ ...styles.statCard, background: "#eef4ff" }}>
+                    <span style={{ ...styles.statLabel, color: "#1d4ed8" }}>
+                      Total
+                    </span>
+                    <strong style={styles.statValue}>{items.length}</strong>
+                  </div>
 
-                <div style={{ ...styles.statCard, background: "#eefbf3" }}>
-                  <span style={{ ...styles.statLabel, color: "#15803d" }}>
-                    Ativos
-                  </span>
-                  <strong style={styles.statValue}>{activeItems}</strong>
-                </div>
+                  <div style={{ ...styles.statCard, background: "#eefbf3" }}>
+                    <span style={{ ...styles.statLabel, color: "#15803d" }}>
+                      Ativos
+                    </span>
+                    <strong style={styles.statValue}>{activeItems}</strong>
+                  </div>
 
-                <div style={{ ...styles.statCard, background: "#fff1f2" }}>
-                  <span style={{ ...styles.statLabel, color: "#b91c1c" }}>
-                    Inativos
-                  </span>
-                  <strong style={styles.statValue}>{inactiveItems}</strong>
-                </div>
+                  <div style={{ ...styles.statCard, background: "#fff1f2" }}>
+                    <span style={{ ...styles.statLabel, color: "#b91c1c" }}>
+                      Inativos
+                    </span>
+                    <strong style={styles.statValue}>{inactiveItems}</strong>
+                  </div>
 
-                <div style={{ ...styles.statCard, background: "#f6f0ff" }}>
-                  <span style={{ ...styles.statLabel, color: "#7c3aed" }}>
-                    Categorias
-                  </span>
-                  <strong style={styles.statValue}>{categories.length}</strong>
+                  <div style={{ ...styles.statCard, background: "#f6f0ff" }}>
+                    <span style={{ ...styles.statLabel, color: "#7c3aed" }}>
+                      Categorias
+                    </span>
+                    <strong style={styles.statValue}>{categories.length}</strong>
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
           </aside>
 
-          <section style={styles.catalogCard}>
+          <section
+            style={{
+              ...styles.catalogCard,
+              ...(isDesktop ? styles.catalogCardDesktop : styles.catalogCardMobile),
+            }}
+          >
             <div style={styles.catalogHeader}>
               <div>
                 <h2 style={styles.sectionTitle}>Itens cadastrados</h2>
@@ -557,7 +597,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
             <div
               style={{
                 ...styles.toolbar,
-                ...(isDesktop ? styles.toolbarDesktop : {}),
+                ...(isDesktop ? styles.toolbarDesktop : styles.toolbarMobile),
               }}
             >
               <input
@@ -607,8 +647,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
             <div
               style={{
                 ...styles.itemsList,
-                flex: 1,
-                minHeight: 0,
+                ...(isDesktop ? styles.itemsListDesktop : styles.itemsListMobile),
+                flex: isDesktop ? 1 : undefined,
+                minHeight: isDesktop ? 0 : undefined,
               }}
             >
               {filteredItems.map((item) => {
@@ -655,17 +696,13 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                                       : "#198754",
                                 }}
                               >
-                                {item.type === "PRODUCT"
-                                  ? "Produto"
-                                  : "Serviço"}
+                                {item.type === "PRODUCT" ? "Produto" : "Serviço"}
                               </span>
 
                               <span
                                 style={{
                                   ...styles.pill,
-                                  background: item.active
-                                    ? "#eaf8ef"
-                                    : "#fff0f0",
+                                  background: item.active ? "#eaf8ef" : "#fff0f0",
                                   color: item.active ? "#15803d" : "#b91c1c",
                                 }}
                               >
@@ -689,16 +726,13 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 
                             <button
                               type="button"
-                              onClick={() =>
-                                handleToggleActive(item.id, !item.active)
-                              }
+                              onClick={() => handleToggleActive(item.id, !item.active)}
                               disabled={deactivatingItemId === item.id}
                               style={{
                                 ...(item.active
                                   ? styles.dangerButton
                                   : styles.primaryButton),
-                                opacity:
-                                  deactivatingItemId === item.id ? 0.7 : 1,
+                                opacity: deactivatingItemId === item.id ? 0.7 : 1,
                               }}
                             >
                               {deactivatingItemId === item.id
@@ -754,9 +788,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                         <input
                           type="text"
                           value={editImageUrl}
-                          onChange={(event) =>
-                            setEditImageUrl(event.target.value)
-                          }
+                          onChange={(event) => setEditImageUrl(event.target.value)}
                           style={styles.input}
                           placeholder="URL da imagem"
                         />
@@ -776,9 +808,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 
                         <select
                           value={editCategoryId}
-                          onChange={(event) =>
-                            setEditCategoryId(event.target.value)
-                          }
+                          onChange={(event) => setEditCategoryId(event.target.value)}
                           style={styles.input}
                         >
                           <option value="">Sem categoria</option>
@@ -832,6 +862,179 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
           </section>
         </div>
       </div>
+
+      {isMobile && isItemModalOpen && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent}>
+            <div style={styles.modalHeader}>
+              <h2 style={styles.sectionTitle}>Novo item</h2>
+              <button
+                type="button"
+                onClick={() => setIsItemModalOpen(false)}
+                style={styles.secondaryButton}
+              >
+                Fechar
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} style={styles.form}>
+              <input
+                type="text"
+                placeholder="Nome do item"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                style={styles.input}
+              />
+
+              <textarea
+                placeholder="Descrição"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows={4}
+                style={styles.textarea}
+              />
+
+              <input
+                type="text"
+                placeholder="Preço"
+                value={price}
+                onChange={(event) => setPrice(event.target.value)}
+                style={styles.input}
+              />
+
+              <input
+                type="text"
+                placeholder="URL da imagem"
+                value={imageUrl}
+                onChange={(event) => setImageUrl(event.target.value)}
+                style={styles.input}
+              />
+
+              <select
+                value={type}
+                onChange={(event) =>
+                  setType(event.target.value as "PRODUCT" | "SERVICE")
+                }
+                style={styles.input}
+              >
+                <option value="PRODUCT">Produto</option>
+                <option value="SERVICE">Serviço</option>
+              </select>
+
+              <select
+                value={categoryId}
+                onChange={(event) => setCategoryId(event.target.value)}
+                style={styles.input}
+              >
+                <option value="">Sem categoria</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                style={{
+                  ...styles.primaryButton,
+                  opacity: isSubmitting ? 0.75 : 1,
+                }}
+              >
+                {isSubmitting ? "Criando..." : "Criar item"}
+              </button>
+
+              {formMessage && (
+                <p
+                  style={{
+                    ...styles.feedback,
+                    color: formMessage.includes("sucesso")
+                      ? "#15803d"
+                      : "#b91c1c",
+                  }}
+                >
+                  {formMessage}
+                </p>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isMobile && isCategoryModalOpen && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent}>
+            <div style={styles.modalHeader}>
+              <h2 style={styles.sectionTitle}>Categorias</h2>
+              <button
+                type="button"
+                onClick={() => setIsCategoryModalOpen(false)}
+                style={styles.secondaryButton}
+              >
+                Fechar
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleCreateCategory}
+              style={{ ...styles.form, marginTop: 14 }}
+            >
+              <input
+                type="text"
+                placeholder="Nome da categoria"
+                value={categoryName}
+                onChange={(event) => setCategoryName(event.target.value)}
+                style={styles.input}
+              />
+
+              <button
+                type="submit"
+                disabled={isCreatingCategory}
+                style={{
+                  ...styles.primaryButton,
+                  opacity: isCreatingCategory ? 0.75 : 1,
+                }}
+              >
+                {isCreatingCategory ? "Criando..." : "Criar categoria"}
+              </button>
+
+              {categoryMessage && (
+                <p
+                  style={{
+                    ...styles.feedback,
+                    color: categoryMessage.includes("sucesso")
+                      ? "#15803d"
+                      : "#b91c1c",
+                  }}
+                >
+                  {categoryMessage}
+                </p>
+              )}
+            </form>
+
+            <div
+              style={{
+                display: "grid",
+                gap: 8,
+                marginTop: 14,
+              }}
+            >
+              {categories.length === 0 && (
+                <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>
+                  Nenhuma categoria cadastrada.
+                </p>
+              )}
+
+              {categories.map((category) => (
+                <div key={category.id} style={styles.categoryListItem}>
+                  {category.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -839,17 +1042,29 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    height: "100vh",
     background:
       "linear-gradient(180deg, #eef4ff 0%, #f5f7fb 32%, #f7f9fc 100%)",
     color: "#18212f",
+  },
+  pageDesktop: {
+    height: "100vh",
     overflow: "hidden",
+  },
+  pageMobile: {
+    height: "auto",
+    overflow: "visible",
   },
   container: {
     maxWidth: 1400,
     margin: "0 auto",
     padding: 20,
+  },
+  containerDesktop: {
     height: "100%",
+  },
+  containerMobile: {
+    height: "auto",
+    padding: 12,
   },
   headerCard: {
     background: "#ffffff",
@@ -922,19 +1137,20 @@ const styles: Record<string, CSSProperties> = {
   contentGrid: {
     display: "grid",
     gap: 16,
-    height: "calc(100% - 148px)",
-    minHeight: 0,
   },
   contentGridDesktop: {
     gridTemplateColumns: "350px minmax(0, 1fr)",
     alignItems: "start",
-    height: "100%",
+    height: "calc(100% - 148px)",
     minHeight: 0,
+  },
+  contentGridMobile: {
+    height: "auto",
+    minHeight: "auto",
   },
   sidebar: {
     display: "grid",
     gap: 16,
-    minHeight: 0,
   },
   sidebarDesktop: {
     position: "sticky",
@@ -943,6 +1159,12 @@ const styles: Record<string, CSSProperties> = {
     height: "100%",
     overflowY: "auto",
     paddingRight: 6,
+    minHeight: 0,
+  },
+  sidebarMobile: {
+    position: "static",
+    height: "auto",
+    overflow: "visible",
   },
   panelCard: {
     background: "#ffffff",
@@ -1071,12 +1293,18 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: 22,
     padding: 18,
     boxShadow: "0 14px 32px rgba(15, 23, 42, 0.05)",
+    minWidth: 0,
+  },
+  catalogCardDesktop: {
     minHeight: 420,
     height: "100%",
     overflow: "hidden",
     display: "flex",
     flexDirection: "column",
-    minWidth: 0,
+  },
+  catalogCardMobile: {
+    height: "auto",
+    overflow: "visible",
   },
   catalogHeader: {
     marginBottom: 14,
@@ -1089,6 +1317,9 @@ const styles: Record<string, CSSProperties> = {
   toolbarDesktop: {
     gridTemplateColumns: "minmax(0, 1fr) 220px 220px",
     alignItems: "center",
+  },
+  toolbarMobile: {
+    gridTemplateColumns: "1fr",
   },
   loadingText: {
     color: "#64748b",
@@ -1105,8 +1336,14 @@ const styles: Record<string, CSSProperties> = {
   itemsList: {
     display: "grid",
     gap: 12,
+  },
+  itemsListDesktop: {
     overflowY: "auto",
     paddingRight: 6,
+  },
+  itemsListMobile: {
+    overflow: "visible",
+    paddingRight: 0,
   },
   itemCard: {
     border: "1px solid #e2e8f0",
@@ -1180,5 +1417,41 @@ const styles: Record<string, CSSProperties> = {
     gap: 8,
     flexWrap: "wrap",
     alignItems: "center",
+  },
+  categoryListItem: {
+    padding: "10px 12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    background: "#f8fafc",
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#334155",
+  },
+  modalOverlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(15, 23, 42, 0.45)",
+    display: "flex",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    padding: 12,
+    zIndex: 999,
+  },
+  modalContent: {
+    width: "100%",
+    maxWidth: 640,
+    maxHeight: "90vh",
+    overflowY: "auto",
+    background: "#ffffff",
+    borderRadius: 20,
+    padding: 16,
+    boxShadow: "0 20px 50px rgba(15, 23, 42, 0.25)",
+  },
+  modalHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12,
   },
 };
