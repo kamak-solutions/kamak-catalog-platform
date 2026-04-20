@@ -7,6 +7,7 @@ import cors from "@fastify/cors";
 import { userRoutes } from "./modules/user/interfaces/user.routes.js";
 import { registerRoutes } from "./modules/auth/interfaces/register.routes.js";
 import { publicCatalogRoutes } from "./modules/catalog/interfaces/public-catalog.routes.js";
+import { tenantProfileRoutes } from "./modules/tenant/interfaces/tenant-profile.routes.js";
 const app = Fastify({
     logger: {
         transport: {
@@ -25,6 +26,7 @@ await app.register(cors, {
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"]
 });
 app.register(tenantRoutes);
+app.register(tenantProfileRoutes);
 app.register(userRoutes);
 app.register(registerRoutes);
 app.register(authRoutes);

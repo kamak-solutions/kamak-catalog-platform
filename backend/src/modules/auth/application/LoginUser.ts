@@ -27,6 +27,8 @@ export class LoginUser {
             id: true,
             name: true,
             slug: true,
+            description: true,
+            whatsapp: true,
             createdAt: true,
           },
         },
@@ -66,6 +68,8 @@ export class LoginUser {
         id: user.tenant.id,
         name: user.tenant.name,
         slug: user.tenant.slug,
+        description: user.tenant.description,
+        whatsapp: user.tenant.whatsapp,
         createdAt: user.tenant.createdAt,
       },
     };

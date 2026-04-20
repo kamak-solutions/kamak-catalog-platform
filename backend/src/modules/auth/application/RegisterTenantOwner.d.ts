@@ -19,6 +19,8 @@ export declare class RegisterTenantOwner {
             id: string;
             name: string;
             slug: string;
+            description: string | null;
+            whatsapp: string | null;
             createdAt: Date;
         };
     }>;

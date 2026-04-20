@@ -17,6 +17,8 @@ export declare class LoginUser {
             id: string;
             name: string;
             slug: string;
+            description: string | null;
+            whatsapp: string | null;
             createdAt: Date;
         };
     }>;

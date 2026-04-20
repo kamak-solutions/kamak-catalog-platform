@@ -16,12 +16,13 @@ model Tenant {
   id           String        @id @default(uuid())
   name         String
   slug         String        @unique
+  description  String?
+  whatsapp     String?
   createdAt    DateTime      @default(now())
 
   users        User[]
   catalogItems CatalogItem[]
   categories   Category[]
-  
 }
 
 model User {

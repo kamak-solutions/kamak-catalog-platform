@@ -97,7 +97,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [categoryName, setCategoryName] = useState("");
   const [categoryMessage, setCategoryMessage] = useState("");
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
-
+  const itemImagePreview = imageUrl.trim();
+  const hasCategoryFeedback = categoryMessage.length > 0;
+  const hasItemFeedback = formMessage.length > 0;
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -110,7 +112,11 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
   const [deactivatingItemId, setDeactivatingItemId] = useState<string | null>(
     null,
   );
-
+  const [storeName, setStoreName] = useState("");
+  const [storeDescription, setStoreDescription] = useState("");
+  const [storeWhatsapp, setStoreWhatsapp] = useState("");
+  const [storeMessage, setStoreMessage] = useState("");
+  const [isSavingStoreProfile, setIsSavingStoreProfile] = useState(false);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState(false);
@@ -126,6 +132,8 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
         id?: string;
         name?: string;
         slug?: string;
+        description?: string | null;
+        whatsapp?: string | null;
         createdAt?: string;
       };
     } catch {
@@ -193,6 +201,34 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
       setIsFormOpen(false);
     }
   }, [isDesktop]);
+  useEffect(() => {
+    if (!storedTenant) return;
+
+    setStoreName(storedTenant.name ?? "");
+    setStoreDescription(storedTenant.description ?? "");
+    setStoreWhatsapp(storedTenant.whatsapp ?? "");
+  }, [storedTenant]);
+
+  async function handleSaveStoreProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStoreMessage("");
+    setIsSavingStoreProfile(true);
+
+    try {
+      const response = await api.patch("/tenants/me/profile", {
+        name: storeName,
+        description: storeDescription,
+        whatsapp: storeWhatsapp,
+      });
+
+      localStorage.setItem("tenant", JSON.stringify(response.data));
+      setStoreMessage("Perfil da loja atualizado com sucesso.");
+    } catch {
+      setStoreMessage("Falha ao atualizar perfil da loja.");
+    } finally {
+      setIsSavingStoreProfile(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -435,61 +471,120 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 
               {isDesktop && isFormOpen && (
                 <form onSubmit={handleSubmit} style={styles.form}>
-                  <input
-                    type="text"
-                    placeholder="Nome do item"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    style={styles.input}
-                  />
+                  <div style={styles.formSection}>
+                    <div style={styles.formSectionHeader}>
+                      <h3 style={styles.formSectionTitle}>
+                        Informações principais
+                      </h3>
+                      <p style={styles.formSectionDescription}>
+                        Defina o nome e a descrição do item que vai aparecer na
+                        sua vitrine.
+                      </p>
+                    </div>
 
-                  <textarea
-                    placeholder="Descrição"
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    rows={4}
-                    style={styles.textarea}
-                  />
+                    <input
+                      type="text"
+                      placeholder="Nome do item"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      style={styles.input}
+                    />
 
-                  <input
-                    type="text"
-                    placeholder="Preço"
-                    value={price}
-                    onChange={(event) => setPrice(event.target.value)}
-                    style={styles.input}
-                  />
+                    <textarea
+                      placeholder="Descrição"
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
+                      rows={4}
+                      style={styles.textarea}
+                    />
+                  </div>
 
-                  <input
-                    type="text"
-                    placeholder="URL da imagem"
-                    value={imageUrl}
-                    onChange={(event) => setImageUrl(event.target.value)}
-                    style={styles.input}
-                  />
+                  <div style={styles.formSection}>
+                    <div style={styles.formSectionHeader}>
+                      <h3 style={styles.formSectionTitle}>
+                        Venda e organização
+                      </h3>
+                      <p style={styles.formSectionDescription}>
+                        Informe preço, tipo e categoria para manter seu catálogo
+                        organizado.
+                      </p>
+                    </div>
 
-                  <select
-                    value={type}
-                    onChange={(event) =>
-                      setType(event.target.value as "PRODUCT" | "SERVICE")
-                    }
-                    style={styles.input}
-                  >
-                    <option value="PRODUCT">Produto</option>
-                    <option value="SERVICE">Serviço</option>
-                  </select>
+                    <div style={styles.formGridTwo}>
+                      <input
+                        type="text"
+                        placeholder="Preço"
+                        value={price}
+                        onChange={(event) => setPrice(event.target.value)}
+                        style={styles.input}
+                      />
 
-                  <select
-                    value={categoryId}
-                    onChange={(event) => setCategoryId(event.target.value)}
-                    style={styles.input}
-                  >
-                    <option value="">Sem categoria</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+                      <select
+                        value={type}
+                        onChange={(event) =>
+                          setType(event.target.value as "PRODUCT" | "SERVICE")
+                        }
+                        style={styles.input}
+                      >
+                        <option value="PRODUCT">Produto</option>
+                        <option value="SERVICE">Serviço</option>
+                      </select>
+                    </div>
+
+                    <select
+                      value={categoryId}
+                      onChange={(event) => setCategoryId(event.target.value)}
+                      style={styles.input}
+                    >
+                      <option value="">Sem categoria</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.formSection}>
+                    <div style={styles.formSectionHeader}>
+                      <h3 style={styles.formSectionTitle}>Imagem</h3>
+                      <p style={styles.formSectionDescription}>
+                        Cole a URL de uma imagem para deixar seu item mais
+                        atrativo.
+                      </p>
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="URL da imagem"
+                      value={imageUrl}
+                      onChange={(event) => setImageUrl(event.target.value)}
+                      style={styles.input}
+                    />
+
+                    {itemImagePreview && (
+                      <div style={styles.previewCard}>
+                        <div style={styles.previewImageWrapper}>
+                          <img
+                            src={itemImagePreview}
+                            alt="Pré-visualização"
+                            style={styles.previewImage}
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        </div>
+                        <div style={styles.previewText}>
+                          <strong style={styles.previewTitle}>
+                            Pré-visualização
+                          </strong>
+                          <span style={styles.previewSubtitle}>
+                            Confira como a imagem pode aparecer no catálogo.
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <button
                     type="submit"
@@ -502,21 +597,20 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                     {isSubmitting ? "Criando..." : "Criar item"}
                   </button>
 
-                  {formMessage && (
-                    <p
+                  {hasItemFeedback && (
+                    <div
                       style={{
-                        ...styles.feedback,
-                        color: formMessage.includes("sucesso")
-                          ? "#15803d"
-                          : "#b91c1c",
+                        ...styles.feedbackCard,
+                        ...(formMessage.includes("sucesso")
+                          ? styles.feedbackSuccess
+                          : styles.feedbackError),
                       }}
                     >
                       {formMessage}
-                    </p>
+                    </div>
                   )}
                 </form>
               )}
-
               {isMobile && (
                 <div style={{ marginTop: 14 }}>
                   <button
@@ -575,22 +669,17 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                     )}
                   </form>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gap: 8,
-                      marginTop: 14,
-                    }}
-                  >
+                  <div style={styles.categoryList}>
                     {categories.length === 0 && (
-                      <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>
-                        Nenhuma categoria cadastrada.
-                      </p>
+                      <div style={styles.emptyMiniState}>
+                        Nenhuma categoria cadastrada ainda.
+                      </div>
                     )}
 
                     {categories.map((category) => (
                       <div key={category.id} style={styles.categoryListItem}>
-                        {category.name}
+                        <div style={styles.categoryDot} />
+                        <span>{category.name}</span>
                       </div>
                     ))}
                   </div>
@@ -607,7 +696,66 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 </div>
               )}
             </section>
+            <section style={styles.panelCard}>
+              <h2 style={styles.sectionTitle}>Perfil da loja</h2>
+              <p style={styles.sectionSubtitle}>
+                Atualize os dados básicos que representam sua loja na
+                plataforma.
+              </p>
 
+              <form
+                onSubmit={handleSaveStoreProfile}
+                style={{ ...styles.form, marginTop: 14 }}
+              >
+                <input
+                  type="text"
+                  placeholder="Nome da loja"
+                  value={storeName}
+                  onChange={(event) => setStoreName(event.target.value)}
+                  style={styles.input}
+                />
+
+                <textarea
+                  placeholder="Descrição da loja"
+                  value={storeDescription}
+                  onChange={(event) => setStoreDescription(event.target.value)}
+                  rows={3}
+                  style={styles.textarea}
+                />
+
+                <input
+                  type="text"
+                  placeholder="WhatsApp"
+                  value={storeWhatsapp}
+                  onChange={(event) => setStoreWhatsapp(event.target.value)}
+                  style={styles.input}
+                />
+
+                <button
+                  type="submit"
+                  disabled={isSavingStoreProfile}
+                  style={{
+                    ...styles.primaryButton,
+                    opacity: isSavingStoreProfile ? 0.75 : 1,
+                  }}
+                >
+                  {isSavingStoreProfile ? "Salvando..." : "Salvar perfil"}
+                </button>
+
+                {storeMessage && (
+                  <div
+                    style={{
+                      ...styles.feedbackCard,
+                      ...(storeMessage.includes("sucesso")
+                        ? styles.feedbackSuccess
+                        : styles.feedbackError),
+                    }}
+                  >
+                    {storeMessage}
+                  </div>
+                )}
+              </form>
+            </section>
             {isDesktop && (
               <section style={styles.panelCard}>
                 <h2 style={styles.sectionTitle}>Resumo</h2>
@@ -1122,61 +1270,96 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
             </div>
 
             <form onSubmit={handleSubmit} style={styles.form}>
-              <input
-                type="text"
-                placeholder="Nome do item"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                style={styles.input}
-              />
+              <div style={styles.formSection}>
+                <h3 style={styles.formSectionTitle}>Informações principais</h3>
 
-              <textarea
-                placeholder="Descrição"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                rows={4}
-                style={styles.textarea}
-              />
+                <input
+                  type="text"
+                  placeholder="Nome do item"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  style={styles.input}
+                />
 
-              <input
-                type="text"
-                placeholder="Preço"
-                value={price}
-                onChange={(event) => setPrice(event.target.value)}
-                style={styles.input}
-              />
+                <textarea
+                  placeholder="Descrição"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  rows={4}
+                  style={styles.textarea}
+                />
+              </div>
 
-              <input
-                type="text"
-                placeholder="URL da imagem"
-                value={imageUrl}
-                onChange={(event) => setImageUrl(event.target.value)}
-                style={styles.input}
-              />
+              <div style={styles.formSection}>
+                <h3 style={styles.formSectionTitle}>Venda e organização</h3>
 
-              <select
-                value={type}
-                onChange={(event) =>
-                  setType(event.target.value as "PRODUCT" | "SERVICE")
-                }
-                style={styles.input}
-              >
-                <option value="PRODUCT">Produto</option>
-                <option value="SERVICE">Serviço</option>
-              </select>
+                <input
+                  type="text"
+                  placeholder="Preço"
+                  value={price}
+                  onChange={(event) => setPrice(event.target.value)}
+                  style={styles.input}
+                />
 
-              <select
-                value={categoryId}
-                onChange={(event) => setCategoryId(event.target.value)}
-                style={styles.input}
-              >
-                <option value="">Sem categoria</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+                <select
+                  value={type}
+                  onChange={(event) =>
+                    setType(event.target.value as "PRODUCT" | "SERVICE")
+                  }
+                  style={styles.input}
+                >
+                  <option value="PRODUCT">Produto</option>
+                  <option value="SERVICE">Serviço</option>
+                </select>
+
+                <select
+                  value={categoryId}
+                  onChange={(event) => setCategoryId(event.target.value)}
+                  style={styles.input}
+                >
+                  <option value="">Sem categoria</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={styles.formSection}>
+                <h3 style={styles.formSectionTitle}>Imagem</h3>
+
+                <input
+                  type="text"
+                  placeholder="URL da imagem"
+                  value={imageUrl}
+                  onChange={(event) => setImageUrl(event.target.value)}
+                  style={styles.input}
+                />
+
+                {itemImagePreview && (
+                  <div style={styles.previewCard}>
+                    <div style={styles.previewImageWrapper}>
+                      <img
+                        src={itemImagePreview}
+                        alt="Pré-visualização"
+                        style={styles.previewImage}
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                    <div style={styles.previewText}>
+                      <strong style={styles.previewTitle}>
+                        Pré-visualização
+                      </strong>
+                      <span style={styles.previewSubtitle}>
+                        Confira a imagem antes de salvar.
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <button
                 type="submit"
@@ -1189,18 +1372,33 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 {isSubmitting ? "Criando..." : "Criar item"}
               </button>
 
-              {formMessage && (
-                <p
+              {hasCategoryFeedback && (
+                <div
                   style={{
-                    ...styles.feedback,
-                    color: formMessage.includes("sucesso")
-                      ? "#15803d"
-                      : "#b91c1c",
+                    ...styles.feedbackCard,
+                    ...(categoryMessage.includes("sucesso")
+                      ? styles.feedbackSuccess
+                      : styles.feedbackError),
                   }}
                 >
-                  {formMessage}
-                </p>
+                  {categoryMessage}
+                </div>
               )}
+
+              <div style={styles.categoryList}>
+                {categories.length === 0 && (
+                  <div style={styles.emptyMiniState}>
+                    Nenhuma categoria cadastrada ainda.
+                  </div>
+                )}
+
+                {categories.map((category) => (
+                  <div key={category.id} style={styles.categoryListItem}>
+                    <div style={styles.categoryDot} />
+                    <span>{category.name}</span>
+                  </div>
+                ))}
+              </div>
             </form>
           </div>
         </div>
@@ -1654,13 +1852,16 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
   },
   categoryListItem: {
-    padding: "10px 12px",
+    padding: "12px 14px",
     border: "1px solid #e2e8f0",
-    borderRadius: 12,
-    background: "#f8fafc",
+    borderRadius: 14,
+    background: "#ffffff",
     fontSize: 14,
     fontWeight: 600,
     color: "#334155",
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
   },
   modalOverlay: {
     position: "fixed",
@@ -1832,5 +2033,125 @@ const styles: Record<string, CSSProperties> = {
   stepStatusPending: {
     background: "#fff7ed",
     color: "#c2410c",
+  },
+  formSection: {
+    border: "1px solid #e2e8f0",
+    borderRadius: 18,
+    padding: 14,
+    background: "#fbfdff",
+    display: "grid",
+    gap: 12,
+  },
+
+  formSectionHeader: {
+    display: "grid",
+    gap: 4,
+  },
+
+  formSectionTitle: {
+    margin: 0,
+    fontSize: 16,
+    color: "#0f172a",
+    fontWeight: 800,
+  },
+
+  formSectionDescription: {
+    margin: 0,
+    fontSize: 13,
+    lineHeight: 1.45,
+    color: "#64748b",
+  },
+
+  formGridTwo: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 12,
+  },
+
+  previewCard: {
+    display: "flex",
+    gap: 12,
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 16,
+    border: "1px solid #dbe4f0",
+    background: "#ffffff",
+  },
+
+  previewImageWrapper: {
+    width: 72,
+    height: 72,
+    borderRadius: 14,
+    overflow: "hidden",
+    background: "#f8fafc",
+    border: "1px solid #e2e8f0",
+    flexShrink: 0,
+  },
+
+  previewImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+
+  previewText: {
+    display: "grid",
+    gap: 4,
+  },
+
+  previewTitle: {
+    fontSize: 14,
+    color: "#0f172a",
+  },
+
+  previewSubtitle: {
+    fontSize: 13,
+    color: "#64748b",
+    lineHeight: 1.4,
+  },
+
+  feedbackCard: {
+    padding: "12px 14px",
+    borderRadius: 14,
+    fontSize: 14,
+    fontWeight: 700,
+    border: "1px solid transparent",
+  },
+
+  feedbackSuccess: {
+    background: "#eefbf3",
+    color: "#15803d",
+    borderColor: "#bbf7d0",
+  },
+
+  feedbackError: {
+    background: "#fff1f2",
+    color: "#b91c1c",
+    borderColor: "#fecdd3",
+  },
+
+  categoryList: {
+    display: "grid",
+    gap: 8,
+    marginTop: 14,
+  },
+
+  categoryDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+    background: "#2563eb",
+    flexShrink: 0,
+  },
+
+  emptyMiniState: {
+    border: "1px dashed #cbd5e1",
+    borderRadius: 14,
+    padding: 14,
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: 14,
+    fontWeight: 600,
   },
 };

@@ -1,0 +1,1 @@
+{"version":3,"file":"UpdateTenantProfile.d.ts","sourceRoot":"","sources":["UpdateTenantProfile.ts"],"names":[],"mappings":"AAEA,UAAU,wBAAwB;IAChC,QAAQ,EAAE,MAAM,CAAC;IACjB,IAAI,CAAC,EAAE,MAAM,CAAC;IACd,WAAW,CAAC,EAAE,MAAM,CAAC;IACrB,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB;AAED,qBAAa,mBAAmB;IACxB,OAAO,CAAC,KAAK,EAAE,wBAAwB;;;;;;;;CA8B9C"}

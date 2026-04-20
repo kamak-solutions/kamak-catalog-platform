@@ -72,6 +72,8 @@ export class RegisterTenantOwner {
                 id: result.tenant.id,
                 name: result.tenant.name,
                 slug: result.tenant.slug,
+                description: result.tenant.description,
+                whatsapp: result.tenant.whatsapp,
                 createdAt: result.tenant.createdAt,
             },
         };
