@@ -309,6 +309,49 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 
   const activeItems = items.filter((item) => item.active).length;
   const inactiveItems = items.filter((item) => !item.active).length;
+  const hasCategories = categories.length > 0;
+  const hasItems = items.length > 0;
+  const hasShareableCatalog = Boolean(publicCatalogUrl) && hasItems;
+  const onboardingSteps = [
+    {
+      key: "categories",
+      title: "Estruture sua loja",
+      description:
+        "Crie categorias para organizar melhor seus produtos ou serviços.",
+      done: hasCategories,
+      actionLabel: "Criar categoria",
+      onAction: () => {
+        if (isMobile) {
+          setIsCategoryModalOpen(true);
+        }
+      },
+    },
+    {
+      key: "items",
+      title: "Monte sua vitrine",
+      description: "Cadastre pelo menos um item com nome, preço e imagem.",
+      done: hasItems,
+      actionLabel: "Novo item",
+      onAction: () => {
+        if (isMobile) {
+          setIsItemModalOpen(true);
+        }
+      },
+    },
+    {
+      key: "publicCatalog",
+      title: "Compartilhe com clientes",
+      description:
+        "Abra sua vitrine pública e envie o link para seus clientes.",
+      done: hasShareableCatalog,
+      actionLabel: "Ver catálogo",
+      onAction: () => {},
+    },
+  ];
+  const completedSteps = onboardingSteps.filter((step) => step.done).length;
+  const onboardingProgress = Math.round(
+    (completedSteps / onboardingSteps.length) * 100,
+  );
 
   return (
     <main
@@ -664,6 +707,115 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                 : styles.catalogCardMobile),
             }}
           >
+            <section style={styles.onboardingCard}>
+              <div style={styles.onboardingHeader}>
+                <div>
+                  <p style={styles.onboardingEyebrow}>Ativação da loja</p>
+                  <h2 style={styles.onboardingTitle}>Configure sua loja</h2>
+                  <p style={styles.onboardingSubtitle}>
+                    Siga estas etapas para organizar sua loja, cadastrar seus
+                    primeiros itens e começar a divulgar seu catálogo.
+                  </p>
+                </div>
+
+                <div style={styles.onboardingSummary}>
+                  <strong style={styles.onboardingSummaryValue}>
+                    {completedSteps} de {onboardingSteps.length}
+                  </strong>
+                  <span style={styles.onboardingSummaryLabel}>
+                    etapas concluídas
+                  </span>
+                </div>
+              </div>
+
+              <div style={styles.progressTrack}>
+                <div
+                  style={{
+                    ...styles.progressFill,
+                    width: `${onboardingProgress}%`,
+                  }}
+                />
+              </div>
+
+              <div style={styles.onboardingSteps}>
+                {onboardingSteps.map((step) => {
+                  const isPublicCatalogStep = step.key === "publicCatalog";
+
+                  return (
+                    <div key={step.key} style={styles.onboardingStepCard}>
+                      <div style={styles.onboardingStepTop}>
+                        <div style={styles.onboardingStepText}>
+                          <div style={styles.onboardingStepTitleRow}>
+                            <span
+                              style={{
+                                ...styles.stepStatusBadge,
+                                ...(step.done
+                                  ? styles.stepStatusDone
+                                  : styles.stepStatusPending),
+                              }}
+                            >
+                              {step.done ? "Concluído" : "Pendente"}
+                            </span>
+
+                            <h3 style={styles.onboardingStepTitle}>
+                              {step.title}
+                            </h3>
+                          </div>
+
+                          <p style={styles.onboardingStepDescription}>
+                            {step.description}
+                          </p>
+                        </div>
+
+                        {isPublicCatalogStep ? (
+                          publicCatalogUrl ? (
+                            <a
+                              href={publicCatalogUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{
+                                ...styles.secondaryButton,
+                                textDecoration: "none",
+                                textAlign: "center",
+                              }}
+                            >
+                              {step.actionLabel}
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled
+                              style={{
+                                ...styles.secondaryButton,
+                                opacity: 0.5,
+                                cursor: "not-allowed",
+                              }}
+                            >
+                              {step.actionLabel}
+                            </button>
+                          )
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isDesktop && step.key === "items") {
+                                setIsFormOpen(true);
+                                return;
+                              }
+
+                              step.onAction();
+                            }}
+                            style={styles.secondaryButton}
+                          >
+                            {step.actionLabel}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
             <div style={styles.catalogHeader}>
               <div>
                 <h2 style={styles.sectionTitle}>Itens cadastrados</h2>
@@ -1536,5 +1688,149 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 12,
     marginBottom: 12,
+  },
+  onboardingCard: {
+    background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+    border: "1px solid #dbe4f0",
+    borderRadius: 22,
+    padding: 18,
+    boxShadow: "0 14px 32px rgba(15, 23, 42, 0.05)",
+    marginBottom: 16,
+  },
+
+  onboardingHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 16,
+    flexWrap: "wrap",
+    marginBottom: 14,
+  },
+
+  onboardingEyebrow: {
+    margin: 0,
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    color: "#64748b",
+    fontWeight: 800,
+  },
+
+  onboardingTitle: {
+    margin: "8px 0 6px",
+    fontSize: 24,
+    lineHeight: 1.08,
+    color: "#0f172a",
+    fontWeight: 800,
+  },
+
+  onboardingSubtitle: {
+    margin: 0,
+    color: "#64748b",
+    fontSize: 14,
+    lineHeight: 1.5,
+    maxWidth: 720,
+  },
+
+  onboardingSummary: {
+    minWidth: 120,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: 4,
+  },
+
+  onboardingSummaryValue: {
+    fontSize: 28,
+    lineHeight: 1,
+    color: "#0f172a",
+  },
+
+  onboardingSummaryLabel: {
+    fontSize: 12,
+    color: "#64748b",
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+
+  progressTrack: {
+    width: "100%",
+    height: 10,
+    background: "#e2e8f0",
+    borderRadius: 999,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+
+  progressFill: {
+    height: "100%",
+    background: "linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)",
+    borderRadius: 999,
+    transition: "width 0.3s ease",
+  },
+
+  onboardingSteps: {
+    display: "grid",
+    gap: 12,
+  },
+
+  onboardingStepCard: {
+    border: "1px solid #e2e8f0",
+    borderRadius: 18,
+    padding: 12,
+    background: "#ffffff",
+  },
+
+  onboardingStepTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 12,
+    flexWrap: "wrap",
+  },
+
+  onboardingStepText: {
+    flex: 1,
+    minWidth: 220,
+  },
+
+  onboardingStepTitleRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    flexWrap: "wrap",
+    marginBottom: 8,
+  },
+
+  onboardingStepTitle: {
+    margin: 0,
+    fontSize: 17,
+    color: "#0f172a",
+    fontWeight: 800,
+  },
+
+  onboardingStepDescription: {
+    margin: 0,
+    color: "#475569",
+    fontSize: 14,
+    lineHeight: 1.5,
+  },
+
+  stepStatusBadge: {
+    padding: "5px 10px",
+    borderRadius: 999,
+    fontSize: 12,
+    fontWeight: 800,
+  },
+
+  stepStatusDone: {
+    background: "#eaf8ef",
+    color: "#15803d",
+  },
+
+  stepStatusPending: {
+    background: "#fff7ed",
+    color: "#c2410c",
   },
 };
