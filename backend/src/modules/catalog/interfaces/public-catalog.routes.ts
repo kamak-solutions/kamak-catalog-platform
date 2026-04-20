@@ -5,7 +5,7 @@ export async function publicCatalogRoutes(app: FastifyInstance) {
   const publicCatalogController = new PublicCatalogController();
 
   app.get(
-    "/public/catalog/:tenantId",
+    "/public/catalog/:slug",
     publicCatalogController.handle.bind(publicCatalogController),
   );
 }

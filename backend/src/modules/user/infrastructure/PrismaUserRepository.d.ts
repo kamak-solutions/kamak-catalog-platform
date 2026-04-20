@@ -8,20 +8,20 @@ export declare class PrismaUserRepository implements UserRepository {
         tenantId: string;
         role?: UserRole;
     }): Promise<{
-        tenantId: string;
-        role: import("../../../generated/prisma/enums.js").UserRole;
         id: string;
         name: string;
         createdAt: Date;
+        tenantId: string;
+        role: import("../../../generated/prisma/enums.js").UserRole;
         email: string;
         passwordHash: string;
     }>;
     findByEmail(email: string): Promise<{
-        tenantId: string;
-        role: import("../../../generated/prisma/enums.js").UserRole;
         id: string;
         name: string;
         createdAt: Date;
+        tenantId: string;
+        role: import("../../../generated/prisma/enums.js").UserRole;
         email: string;
         passwordHash: string;
     } | null>;

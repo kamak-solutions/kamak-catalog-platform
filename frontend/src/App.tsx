@@ -45,7 +45,7 @@ function AuthenticatedApp() {
 function App() {
   return (
     <Routes>
-      <Route path="/catalogo/:tenantId" element={<PublicCatalogPage />} />
+      <Route path="/catalogo/:slug" element={<PublicCatalogPage />} />
       <Route path="*" element={<AuthenticatedApp />} />
     </Routes>
   );

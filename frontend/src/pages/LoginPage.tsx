@@ -1,7 +1,13 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { api } from "../services/api";
-import type { LoginResponse } from "../types/auth";
+import type { AuthTenant, AuthUser } from "../types/auth";
+
+interface LoginResponse {
+  token: string;
+  user: AuthUser;
+  tenant: AuthTenant;
+}
 
 interface LoginPageProps {
   onLoginSuccess: () => void;
@@ -15,10 +21,12 @@ export function LoginPage({
   const [email, setEmail] = useState("maria@example.com");
   const [password, setPassword] = useState("123456");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
+    setIsSubmitting(true);
 
     try {
       const response = await api.post<LoginResponse>("/auth/login", {
@@ -28,11 +36,14 @@ export function LoginPage({
 
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("tenant", JSON.stringify(response.data.tenant));
 
       setMessage("Login realizado com sucesso.");
       onLoginSuccess();
     } catch {
       setMessage("Falha no login.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -64,8 +75,15 @@ export function LoginPage({
             style={styles.input}
           />
 
-          <button type="submit" style={styles.primaryButton}>
-            Entrar
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            style={{
+              ...styles.primaryButton,
+              opacity: isSubmitting ? 0.75 : 1,
+            }}
+          >
+            {isSubmitting ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
@@ -80,7 +98,11 @@ export function LoginPage({
           </p>
         )}
 
-        <button type="button" onClick={onGoToRegister} style={styles.linkButton}>
+        <button
+          type="button"
+          onClick={onGoToRegister}
+          style={styles.linkButton}
+        >
           Criar nova conta
         </button>
       </section>

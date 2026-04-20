@@ -44,7 +44,7 @@ function formatPrice(price: string | null) {
 }
 
 export function PublicCatalogPage() {
-  const { tenantId } = useParams();
+  const { slug } = useParams();
   const [data, setData] = useState<PublicCatalogResponse | null>(null);
   const [message, setMessage] = useState("Carregando catálogo...");
 
@@ -52,7 +52,7 @@ export function PublicCatalogPage() {
     async function loadCatalog() {
       try {
         const response = await api.get<PublicCatalogResponse>(
-          `/public/catalog/${tenantId}`,
+          `/public/catalog/${slug}`,
         );
         setData(response.data);
         setMessage("");
@@ -61,10 +61,10 @@ export function PublicCatalogPage() {
       }
     }
 
-    if (tenantId) {
+    if (slug) {
       loadCatalog();
     }
-  }, [tenantId]);
+  }, [slug]);
 
   return (
     <main style={styles.page}>

@@ -1,6 +1,7 @@
 import { prisma } from "../../../lib/prisma.js";
-import { hashPassword } from "../../../shared/security/password.js";
 import { signToken } from "../../../shared/security/jwt.js";
+import { hashPassword } from "../../../shared/security/password.js";
+import { slugify } from "../../../shared/utils/slug.js";
 
 interface RegisterTenantOwnerInput {
   userName: string;
@@ -29,12 +30,26 @@ export class RegisterTenantOwner {
 
     const existingUser = await prisma.user.findUnique({
       where: {
-        email: input.email
-      }
+        email: input.email,
+      },
     });
 
     if (existingUser) {
       throw new Error("Email already in use");
+    }
+
+    const baseSlug = slugify(input.tenantName);
+
+    if (!baseSlug) {
+      throw new Error("Invalid tenant name");
+    }
+
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (await prisma.tenant.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
     }
 
     const passwordHash = await hashPassword(input.password);
@@ -42,8 +57,9 @@ export class RegisterTenantOwner {
     const result = await prisma.$transaction(async (tx) => {
       const tenant = await tx.tenant.create({
         data: {
-          name: input.tenantName.trim()
-        }
+          name: input.tenantName.trim(),
+          slug,
+        },
       });
 
       const user = await tx.user.create({
@@ -52,8 +68,8 @@ export class RegisterTenantOwner {
           email: input.email.toLowerCase().trim(),
           passwordHash,
           role: "OWNER",
-          tenantId: tenant.id
-        }
+          tenantId: tenant.id,
+        },
       });
 
       return { tenant, user };
@@ -62,7 +78,7 @@ export class RegisterTenantOwner {
     const token = signToken({
       sub: result.user.id,
       tenantId: result.user.tenantId,
-      role: result.user.role
+      role: result.user.role,
     });
 
     return {
@@ -73,13 +89,14 @@ export class RegisterTenantOwner {
         email: result.user.email,
         role: result.user.role,
         tenantId: result.user.tenantId,
-        createdAt: result.user.createdAt
+        createdAt: result.user.createdAt,
       },
       tenant: {
         id: result.tenant.id,
         name: result.tenant.name,
-        createdAt: result.tenant.createdAt
-      }
+        slug: result.tenant.slug,
+        createdAt: result.tenant.createdAt,
+      },
     };
   }
 }

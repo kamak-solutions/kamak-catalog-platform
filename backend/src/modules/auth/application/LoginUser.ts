@@ -1,6 +1,6 @@
-import { comparePassword } from "../../../shared/security/password.js";
+import { prisma } from "../../../lib/prisma.js";
 import { signToken } from "../../../shared/security/jwt.js";
-import type { UserRepository } from "../../user/domain/UserRepository.js";
+import { comparePassword } from "../../../shared/security/password.js";
 
 interface LoginUserInput {
   email: string;
@@ -8,20 +8,30 @@ interface LoginUserInput {
 }
 
 export class LoginUser {
-  constructor(private readonly userRepository: UserRepository) {}
-
   async execute(input: LoginUserInput) {
-    if (!input.email || input.email.trim().length < 5) {
-      throw new Error("Email is required");
+    if (!input.email || !input.email.includes("@")) {
+      throw new Error("Invalid email");
     }
 
-    if (!input.password || input.password.length < 6) {
-      throw new Error("Password must have at least 6 characters");
+    if (!input.password) {
+      throw new Error("Password is required");
     }
 
-    const user = await this.userRepository.findByEmail(
-      input.email.trim().toLowerCase()
-    );
+    const user = await prisma.user.findUnique({
+      where: {
+        email: input.email.toLowerCase().trim(),
+      },
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
 
     if (!user) {
       throw new Error("Invalid credentials");
@@ -29,7 +39,7 @@ export class LoginUser {
 
     const passwordMatches = await comparePassword(
       input.password,
-      user.passwordHash
+      user.passwordHash,
     );
 
     if (!passwordMatches) {
@@ -39,7 +49,7 @@ export class LoginUser {
     const token = signToken({
       sub: user.id,
       tenantId: user.tenantId,
-      role: user.role
+      role: user.role,
     });
 
     return {
@@ -50,8 +60,14 @@ export class LoginUser {
         email: user.email,
         role: user.role,
         tenantId: user.tenantId,
-        createdAt: user.createdAt
-      }
+        createdAt: user.createdAt,
+      },
+      tenant: {
+        id: user.tenant.id,
+        name: user.tenant.name,
+        slug: user.tenant.slug,
+        createdAt: user.tenant.createdAt,
+      },
     };
   }
 }

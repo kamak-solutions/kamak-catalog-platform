@@ -10,6 +10,7 @@ export interface AuthUser {
 export interface AuthTenant {
   id: string;
   name: string;
+  slug: string;
   createdAt: string;
 }
 

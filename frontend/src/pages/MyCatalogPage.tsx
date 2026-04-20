@@ -125,6 +125,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
       return JSON.parse(raw) as {
         id?: string;
         name?: string;
+        slug?: string;
         createdAt?: string;
       };
     } catch {
@@ -132,8 +133,8 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
     }
   }, []);
 
-  const publicCatalogUrl = storedTenant?.id
-    ? `${window.location.origin}/catalogo/${storedTenant.id}`
+  const publicCatalogUrl = storedTenant?.slug
+    ? `${window.location.origin}/catalogo/${storedTenant.slug}`
     : "";
 
   async function loadItems() {
@@ -946,7 +947,6 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                         )}
                       </div>
                     )}
-                 
                   </article>
                 );
               })}

@@ -1,17 +1,18 @@
 import { prisma } from "../../../lib/prisma.js";
 
 export class GetPublicCatalog {
-  async execute(tenantId: string) {
-    const tenant = await prisma.tenant.findUnique({
-      where: {
-        id: tenantId,
-      },
-      select: {
-        id: true,
-        name: true,
-        createdAt: true,
-      },
-    });
+  async execute(slug: string)  {
+ const tenant = await prisma.tenant.findUnique({
+  where: {
+    slug,
+  },
+  select: {
+    id: true,
+    name: true,
+    slug: true,
+    createdAt: true,
+  },
+});
 
     if (!tenant) {
       throw new Error("Tenant not found");
@@ -19,7 +20,7 @@ export class GetPublicCatalog {
 
     const items = await prisma.catalogItem.findMany({
       where: {
-        tenantId,
+       tenantId: tenant.id,
         active: true,
       },
       include: {

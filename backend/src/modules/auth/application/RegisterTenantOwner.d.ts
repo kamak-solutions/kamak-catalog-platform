@@ -18,6 +18,7 @@ export declare class RegisterTenantOwner {
         tenant: {
             id: string;
             name: string;
+            slug: string;
             createdAt: Date;
         };
     }>;

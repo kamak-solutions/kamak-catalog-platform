@@ -1,22 +1,39 @@
 import { prisma } from "../../../lib/prisma.js";
-import type { TenantRepository } from "../domain/TenatRepository.js";
+import { slugify } from "../../../shared/utils/slug.js";
 
-export class PrismaTenantRepository implements TenantRepository {
-
+export class PrismaTenantRepository {
   async create(name: string) {
+    const baseSlug = slugify(name);
+
+    if (!baseSlug) {
+      throw new Error("Invalid tenant name");
+    }
+
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (await prisma.tenant.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     return prisma.tenant.create({
-      data: { name }
+      data: {
+        name,
+        slug,
+      },
     });
   }
 
   async findById(id: string) {
     return prisma.tenant.findUnique({
-      where: { id }
+      where: { id },
     });
   }
 
   async findAll() {
-    return prisma.tenant.findMany();
+    return prisma.tenant.findMany({
+      orderBy: { createdAt: "desc" },
+    });
   }
-
 }

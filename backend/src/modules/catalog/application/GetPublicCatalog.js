@@ -1,13 +1,14 @@
 import { prisma } from "../../../lib/prisma.js";
 export class GetPublicCatalog {
-    async execute(tenantId) {
+    async execute(slug) {
         const tenant = await prisma.tenant.findUnique({
             where: {
-                id: tenantId,
+                slug,
             },
             select: {
                 id: true,
                 name: true,
+                slug: true,
                 createdAt: true,
             },
         });
@@ -16,7 +17,7 @@ export class GetPublicCatalog {
         }
         const items = await prisma.catalogItem.findMany({
             where: {
-                tenantId,
+                tenantId: tenant.id,
                 active: true,
             },
             include: {

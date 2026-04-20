@@ -1,8 +1,9 @@
 export declare class GetPublicCatalog {
-    execute(tenantId: string): Promise<{
+    execute(slug: string): Promise<{
         tenant: {
             id: string;
             name: string;
+            slug: string;
             createdAt: Date;
         };
         items: {

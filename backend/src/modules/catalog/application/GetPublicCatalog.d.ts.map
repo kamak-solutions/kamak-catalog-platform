@@ -1,1 +1,1 @@
-{"version":3,"file":"GetPublicCatalog.d.ts","sourceRoot":"","sources":["GetPublicCatalog.ts"],"names":[],"mappings":"AAEA,qBAAa,gBAAgB;IACrB,OAAO,CAAC,QAAQ,EAAE,MAAM;;;;;;;;;;;;;;;;;;;;;;;;CAyD/B"}
+{"version":3,"file":"GetPublicCatalog.d.ts","sourceRoot":"","sources":["GetPublicCatalog.ts"],"names":[],"mappings":"AAEA,qBAAa,gBAAgB;IACrB,OAAO,CAAC,IAAI,EAAE,MAAM;;;;;;;;;;;;;;;;;;;;;;;;;CA0D3B"}

@@ -1,18 +1,20 @@
-import type { TenantRepository } from "../domain/TenatRepository.js";
-export declare class PrismaTenantRepository implements TenantRepository {
+export declare class PrismaTenantRepository {
     create(name: string): Promise<{
         id: string;
         name: string;
+        slug: string;
         createdAt: Date;
     }>;
     findById(id: string): Promise<{
         id: string;
         name: string;
+        slug: string;
         createdAt: Date;
     } | null>;
     findAll(): Promise<{
         id: string;
         name: string;
+        slug: string;
         createdAt: Date;
     }[]>;
 }

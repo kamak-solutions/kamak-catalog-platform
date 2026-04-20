@@ -1,1 +1,1 @@
-{"version":3,"file":"PrismaTenantRepository.d.ts","sourceRoot":"","sources":["PrismaTenantRepository.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,8BAA8B,CAAC;AAErE,qBAAa,sBAAuB,YAAW,gBAAgB;IAEvD,MAAM,CAAC,IAAI,EAAE,MAAM;;;;;IAMnB,QAAQ,CAAC,EAAE,EAAE,MAAM;;;;;IAMnB,OAAO;;;;;CAId"}
+{"version":3,"file":"PrismaTenantRepository.d.ts","sourceRoot":"","sources":["PrismaTenantRepository.ts"],"names":[],"mappings":"AAGA,qBAAa,sBAAsB;IAC3B,MAAM,CAAC,IAAI,EAAE,MAAM;;;;;;IAuBnB,QAAQ,CAAC,EAAE,EAAE,MAAM;;;;;;IAMnB,OAAO;;;;;;CAKd"}
