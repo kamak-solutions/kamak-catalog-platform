@@ -113,8 +113,28 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState(false);
 
   const storedUser = useMemo(() => getUserFromStorage(), []);
+  const storedTenant = useMemo(() => {
+    const raw = localStorage.getItem("tenant");
+
+    if (!raw) return null;
+
+    try {
+      return JSON.parse(raw) as {
+        id?: string;
+        name?: string;
+        createdAt?: string;
+      };
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const publicCatalogUrl = storedTenant?.id
+    ? `${window.location.origin}/catalogo/${storedTenant.id}`
+    : "";
 
   async function loadItems() {
     try {
@@ -338,7 +358,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
         <div
           style={{
             ...styles.contentGrid,
-            ...(isDesktop ? styles.contentGridDesktop : styles.contentGridMobile),
+            ...(isDesktop
+              ? styles.contentGridDesktop
+              : styles.contentGridMobile),
           }}
         >
           <aside
@@ -572,7 +594,61 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                     <span style={{ ...styles.statLabel, color: "#7c3aed" }}>
                       Categorias
                     </span>
-                    <strong style={styles.statValue}>{categories.length}</strong>
+                    <strong style={styles.statValue}>
+                      {categories.length}
+                    </strong>
+                  </div>
+                </div>
+              </section>
+            )}
+            {publicCatalogUrl && (
+              <section style={styles.panelCard}>
+                <h2 style={styles.sectionTitle}>Catálogo público</h2>
+                <p style={styles.sectionSubtitle}>
+                  Abra e compartilhe a vitrine pública da sua loja.
+                </p>
+
+                <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+                  <input
+                    type="text"
+                    value={publicCatalogUrl}
+                    readOnly
+                    style={styles.input}
+                  />
+
+                  <div style={styles.actionsRow}>
+                    <a
+                      href={publicCatalogUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        ...styles.primaryButton,
+                        textDecoration: "none",
+                        textAlign: "center",
+                      }}
+                    >
+                      Ver catálogo
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(publicCatalogUrl);
+                          setCopiedMessage(true);
+
+                          window.setTimeout(() => {
+                            setCopiedMessage(false);
+                          }, 2000);
+                        } catch {
+                          setCopiedMessage(false);
+                          window.alert("Não foi possível copiar o link.");
+                        }
+                      }}
+                      style={styles.secondaryButton}
+                    >
+                      {copiedMessage ? "Copiado!" : "Copiar link"}
+                    </button>
                   </div>
                 </div>
               </section>
@@ -582,7 +658,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
           <section
             style={{
               ...styles.catalogCard,
-              ...(isDesktop ? styles.catalogCardDesktop : styles.catalogCardMobile),
+              ...(isDesktop
+                ? styles.catalogCardDesktop
+                : styles.catalogCardMobile),
             }}
           >
             <div style={styles.catalogHeader}>
@@ -647,7 +725,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
             <div
               style={{
                 ...styles.itemsList,
-                ...(isDesktop ? styles.itemsListDesktop : styles.itemsListMobile),
+                ...(isDesktop
+                  ? styles.itemsListDesktop
+                  : styles.itemsListMobile),
                 flex: isDesktop ? 1 : undefined,
                 minHeight: isDesktop ? 0 : undefined,
               }}
@@ -696,13 +776,17 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                                       : "#198754",
                                 }}
                               >
-                                {item.type === "PRODUCT" ? "Produto" : "Serviço"}
+                                {item.type === "PRODUCT"
+                                  ? "Produto"
+                                  : "Serviço"}
                               </span>
 
                               <span
                                 style={{
                                   ...styles.pill,
-                                  background: item.active ? "#eaf8ef" : "#fff0f0",
+                                  background: item.active
+                                    ? "#eaf8ef"
+                                    : "#fff0f0",
                                   color: item.active ? "#15803d" : "#b91c1c",
                                 }}
                               >
@@ -726,13 +810,16 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 
                             <button
                               type="button"
-                              onClick={() => handleToggleActive(item.id, !item.active)}
+                              onClick={() =>
+                                handleToggleActive(item.id, !item.active)
+                              }
                               disabled={deactivatingItemId === item.id}
                               style={{
                                 ...(item.active
                                   ? styles.dangerButton
                                   : styles.primaryButton),
-                                opacity: deactivatingItemId === item.id ? 0.7 : 1,
+                                opacity:
+                                  deactivatingItemId === item.id ? 0.7 : 1,
                               }}
                             >
                               {deactivatingItemId === item.id
@@ -788,7 +875,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                         <input
                           type="text"
                           value={editImageUrl}
-                          onChange={(event) => setEditImageUrl(event.target.value)}
+                          onChange={(event) =>
+                            setEditImageUrl(event.target.value)
+                          }
                           style={styles.input}
                           placeholder="URL da imagem"
                         />
@@ -808,7 +897,9 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
 
                         <select
                           value={editCategoryId}
-                          onChange={(event) => setEditCategoryId(event.target.value)}
+                          onChange={(event) =>
+                            setEditCategoryId(event.target.value)
+                          }
                           style={styles.input}
                         >
                           <option value="">Sem categoria</option>
@@ -855,6 +946,7 @@ export function MyCatalogPage({ onLogout }: MyCatalogPageProps) {
                         )}
                       </div>
                     )}
+                 
                   </article>
                 );
               })}
@@ -1047,8 +1139,8 @@ const styles: Record<string, CSSProperties> = {
     color: "#18212f",
   },
   pageDesktop: {
-    height: "100vh",
-    overflow: "hidden",
+    minHeight: "100vh",
+    overflowY: "auto",
   },
   pageMobile: {
     height: "auto",
@@ -1060,7 +1152,7 @@ const styles: Record<string, CSSProperties> = {
     padding: 20,
   },
   containerDesktop: {
-    height: "100%",
+    height: "auto",
   },
   containerMobile: {
     height: "auto",
@@ -1141,7 +1233,6 @@ const styles: Record<string, CSSProperties> = {
   contentGridDesktop: {
     gridTemplateColumns: "350px minmax(0, 1fr)",
     alignItems: "start",
-    height: "calc(100% - 148px)",
     minHeight: 0,
   },
   contentGridMobile: {
@@ -1153,12 +1244,7 @@ const styles: Record<string, CSSProperties> = {
     gap: 16,
   },
   sidebarDesktop: {
-    position: "sticky",
-    top: 20,
     alignSelf: "start",
-    height: "100%",
-    overflowY: "auto",
-    paddingRight: 6,
     minHeight: 0,
   },
   sidebarMobile: {
@@ -1297,8 +1383,6 @@ const styles: Record<string, CSSProperties> = {
   },
   catalogCardDesktop: {
     minHeight: 420,
-    height: "100%",
-    overflow: "hidden",
     display: "flex",
     flexDirection: "column",
   },
@@ -1338,8 +1422,7 @@ const styles: Record<string, CSSProperties> = {
     gap: 12,
   },
   itemsListDesktop: {
-    overflowY: "auto",
-    paddingRight: 6,
+    paddingRight: 0,
   },
   itemsListMobile: {
     overflow: "visible",

@@ -205,7 +205,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   imageWrapper: {
     width: "100%",
-    aspectRatio: "4 / 3",
+    height: 260,
     background: "#f8fafc",
     overflow: "hidden",
   },
@@ -213,6 +213,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
     height: "100%",
     objectFit: "cover",
+    objectPosition: "center",
     display: "block",
   },
   cardContent: {
